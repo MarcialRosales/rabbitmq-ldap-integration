@@ -1,0 +1,3 @@
+BASE    dc=example,dc=com
+URI     ldap://
+BINDDN  cn=admin,dc=example,dc=com
