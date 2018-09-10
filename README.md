@@ -11,3 +11,4 @@
 # Integration scenarios
 
 - [Only Authentication](only-authentication/Readme.md)
+- [Authentication and User tags](authentication-and-tags/Readme.md)
