@@ -10,4 +10,4 @@
 
 # Integration scenarios
 
-- [Only Authentication](blob/master/only-authentication/Readme.md)
+- [Only Authentication](only-authentication/Readme.md)
