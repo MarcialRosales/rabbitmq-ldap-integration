@@ -1,3 +1,10 @@
+# Only Authentication
+
+On this scenario, we are going to configure RabbitMq so that users are authenticated against the LDAP database, not against the internal RabbitMQ Database. So, even if we had the default user `guest:guest`, we wont be able to authenticate it with it anymore. We can certainly configure RabbitMQ to use both, first LDAP and then the internal, but this is not the option we have configured on this particular scenario.
+On this scenario, We are not going to configure authorization, i.e. users will be allowed to access any resource on any vhosts.
+
+None user will have the `administrator` tag but all users will have the `management` tag. These are roles required to access the management plugin (console and/or api). 
+
 
 ## 1. Set up OpenLDPA
 
