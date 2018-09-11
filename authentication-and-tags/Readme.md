@@ -16,7 +16,7 @@ Run `start.sh` script to launch **OpenLdap**. It will kill the container we ran 
 
 1. We are going to expand the LDAP structure we used in the [previous scenario](../only-authentication/Readme.md), i.e. with 3 users (`bill`, `bob` and `joe`) and one organization called `ou=People,dc=example,dc=com`.
 2. We are adding a new user `cn=prometheus,ou=People,dc=example,dc=com`.
-3. We are adding one more organization called `ou=groups,dc=example,dc=com` with 2 LDAP groups underneath it, the `administrator` and `monitoring` groups.  (i.e. `cn=administrator,ou=groups,dc=example,dc=com`  and `cn=monitoring,ou=groups,dc=example,dc=com`.
+3. We are adding one more organization called `ou=groups,dc=example,dc=com` with 2 LDAP groups underneath it, the `administrator` and `monitoring` groups.  (i.e. `cn=administrator,ou=groups,dc=example,dc=com`  and `cn=monitoring,ou=groups,dc=example,dc=com`).
 4. And finally, we are making `bob` member of the `administrator` group and `prometheus` of the `monitoring` group.
 
 ```
