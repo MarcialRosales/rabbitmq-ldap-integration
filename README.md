@@ -23,12 +23,14 @@ TL;DR : With external authz backends like the LDAP one we highly recommend using
 Make sure the connection timeouts in your LDAP server are larger than your configured timeout (`auth_ldap.timeout`) otherwise your LDAP server may terminate the connection and the LDAP plugin may fail to operate afterwards. RabbitMQ 3.7.6 and later versions have addressed these re-connection issues.
 
 ## Implemented Integration scenarios
+
 - [Only Authentication](only-authentication/Readme.md)
 - [Authentication and User tags](authentication-and-tags/Readme.md)
 - [Authentication, User tags and Vhosts](auth-tags-vhost/Readme.md)
 - [Authentication and Authorization (tags, vhosts, resources)](auth-and-authz/Readme.md)
 
 ## Future Integration scenarios
+
 - [Many RabbitMQ Clusters](many-rabbitmq-clusters/Readme.md)
 
 # Best Practices | Recommendations
