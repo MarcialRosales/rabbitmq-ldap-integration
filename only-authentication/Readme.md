@@ -3,7 +3,7 @@
 On this scenario, we are going to configure RabbitMq so that users are authenticated against the LDAP database, not against the internal RabbitMQ Database. So, even if we had the default user `guest:guest`, we wont be able to authenticate it with it anymore. We can certainly configure RabbitMQ to use both, first LDAP and then the internal, but this is not the option we have configured on this particular scenario.
 On this scenario, We are not going to configure authorization, i.e. users will be allowed to access any resource on any vhosts.
 
-None user will have the `administrator` tag but all users will have the `management` tag. These are roles required to access the management plugin (console and/or api). 
+None user will have the `administrator` tag but all users will have the `management` tag. These are roles required to access the management plugin (console and/or api).
 
 
 ## 1. Set up OpenLDPA
@@ -25,7 +25,7 @@ namingContexts: dc=example,dc=com
 
 ## 2. Brief Introduction to LDAP
 
-For those who are new to LDAP, think of LDAP as a file system. On a file system, we create files and typically we create them under directories/subfolders. Similarly, in LDAP we create *objects* rather than files and those *objects* are created within a naming scheme similar to directories. In a file system, we can refer to a file by using its name (e.g. `Readme.md`) or by using its absolute path (`/home/bob/Readme.md`). Similarly, in LDAP an *object* has a name specified by the attribute `cn` -*Common Name*- or by its fully qualified name `dn` -*Distinguised name*. For instance, the single user defined in our LDAP installation has the name `cn=admin` and its fully qualified name is `cn=admin,dc=example,dc=com`.
+For those who are new to LDAP, think of LDAP as a file system. On a file system, we create files and typically we create them under directories/subfolders. Similarly, in LDAP we create *objects* rather than files and those *objects* are created within a naming scheme similar to directories. In a file system, we can refer to a file by using its name (e.g. `Readme.md`) or by using its absolute path (`/home/bob/Readme.md`). Similarly, in LDAP an *object* has a name specified by the attribute `cn` -*Common Name*- but more importantly it has a unique and fully qualified name `dn` -*Distinguised name*. For instance, the single user defined in our LDAP installation has the name `cn=admin` and its fully qualified name is `cn=admin,dc=example,dc=com`.
 
 In terms of tree structure this is what it is like:
 ```
@@ -156,7 +156,7 @@ Edit your **rabbimq.config** and add the following configuration:
   To test the management access, run `curl -u john:password http://localhost:15672/api/overview | jq .` to validate it
 - All users have access to any vhost
   To test **amqp** access, run `bin/runjava com.rabbitmq.perf.PerfTest --uri amqp://john:password@localhost:5672/%2F`
-- Users must be declare in LDAP under the organizational Unit `ou=People,dc=example,dc=com`. The username used to login to RabbitMq is the `cn` component used in the user's DN
-  In our case, we can login/bind with the user `john` because we created it with its password.
-  We must add `{user_dn_pattern, "cn=${username},ou=People,dc=example,dc=com"},` to `rabbitmq.config` because I am not sure if OpenLDAP allows binding with just a string and not a fully qualified Distinguished name. RabbitMq uses the template defined in `user_dn_pattern` to produce the DN to bind the user.
-- What is exactly Rabbit doing during the authentication process? It is doing a **bind** Request with `-D "cn=john,ou=People,dc=example,dc=com"` and password `-w password"` (this is the password we pass to RabbitMq either via the **http** or **amqp** protocols).  If the DN specified in `-D` matches with a entry of type `objectClass: simpleSecurityObject` and the `userPassword` attribute of that entry also matches with the password passed to Rabbit the authentication is accepted.
+- Users must be declared in LDAP under the **organizational Unit** `ou=People,dc=example,dc=com`.
+- Users will login onto RabbitMq using a plain **username**. We need to map this plain name onto a distinguished name that corresponds to the same user.
+  To configure this mapping we add the following entry to the configuration: `{user_dn_pattern, "cn=${username},ou=People,dc=example,dc=com"},`
+- What is exactly Rabbit doing during the authentication process? It is doing a **bind** Request with `-D "cn=joe,ou=People,dc=example,dc=com"` and password `-w password"` (this is the password we pass to RabbitMq either via the **http** or **amqp** protocols).  If the DN specified in `-D` argument matches with an LDAP entry of type `objectClass: simpleSecurityObject` and the `userPassword` attribute of that entry also matches with the password passed to Rabbit the authentication is accepted.
