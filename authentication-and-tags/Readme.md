@@ -23,12 +23,12 @@ We are going to add start with the same LDAP structure we used in the [previous 
     dc=example,          dc=example,                               dc=example,
     dc=com               dc=com                                    dc=com
                             |                                        |
-  +-------------+-----------+------------+                 +---------+------------+
-  |             ....                     |                 |                      |
-cn=prometheus                           cn=joe            cn=administrator        cn=monitoring,
- ou=People                              ou=People,        ou=groups,              ou=groups,
- dc=example,                            dc=example,       dc=example,             dc=example,
- dc=com                                 dc=com            dc=com                  dc=com
+  +---------------+-----------+------------+                 +---------+------------+
+  |               |           |            |                 |                      |
+cn=prometheus  cn=bill      cn=bo         cn=joe            cn=administrator        cn=monitoring,
+ ou=People      ou=People,   ou=People,    ou=People,        ou=groups,              ou=groups,
+ dc=example,    dc=example,  dc=example,   dc=example,       dc=example,             dc=example,
+ dc=com         dc=com       dc=com        dc=com            dc=com                  dc=com
 ```
 
 Run the following command to create this structure:   
