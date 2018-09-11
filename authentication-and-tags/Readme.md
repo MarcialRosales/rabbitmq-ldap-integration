@@ -13,7 +13,11 @@ Run `start.sh` script to launch **OpenLdap**. It will kill the container we run 
 
 ## 2. Create users in LDAP
 
-We are going to add start with the same LDAP structure we used in the [previous scenario](../only-authentication/Readme.md)
+1. We are going to expand the LDAP structure we used in the [previous scenario](../only-authentication/Readme.md), i.e. with 3 users (`bill`, `bob` and `joe`) and one organization called `ou=People,dc=example,dc=com`.
+2. We are adding a new user, `cn=prometheus,ou=People,dc=example,dc=com`.
+3. We are adding one more organization called `ou=groups,dc=example,dc=com` with 2 LDAP groups underneath it, the `administrator` group `cn=administrator,ou=groups,dc=example,dc=com` and the `monitoring` group.
+4. And finally, we are making `bob` member of the `administrator` group and `prometheus` of the `monitoring` group.
+
 ```
           dc=example, dc=com
                   |
@@ -25,10 +29,16 @@ We are going to add start with the same LDAP structure we used in the [previous 
                             |                                        |
   +---------------+-----------+------------+                 +---------+------------+
   |               |           |            |                 |                      |
-cn=prometheus  cn=bill      cn=bo         cn=joe            cn=administrator        cn=monitoring,
+cn=prometheus  cn=bill      cn=bob        cn=joe            cn=administrator        cn=monitoring,
  ou=People      ou=People,   ou=People,    ou=People,        ou=groups,              ou=groups,
  dc=example,    dc=example,  dc=example,   dc=example,       dc=example,             dc=example,
  dc=com         dc=com       dc=com        dc=com            dc=com                  dc=com
+                                                               ||                       ||
+                                                               ||                  ------------------
+                                                               ||                 cn=prometheus,ou=People,dc=example,dc=com  
+                                                        ----------------       
+                                                  cn=bob,ou=People,dc=example,dc=com       
+
 ```
 
 Run the following command to create this structure:   
