@@ -1,12 +1,11 @@
 # Authentication, User Tags and Vhost access
 
-We expand on the previous scenario, [Authentication and Tags](../authentication-and-tags/Readme.md), but this time we are going to configure which users get access which which vhosts.
+We expand on the previous scenario, [Authentication and Tags](../authentication-and-tags/Readme.md), but this time we are going to configure which users get access to which vhosts.
 
 These are our requirements for this scenario:
-- In our `dc=example, dc=com` organization we have typically 3 environments: **dev**, **qa** and **prod**. Each environment matches with one rabbitmq vhost.
-- Users in the `administrator` and `monitoring` groups are allowed to access any vhost.
-- Users can be assigned to one or many env/vhost. This allows them to access any AMQP resource (exchange, queue) on the corresponding vhost.
-
+- In our `dc=example, dc=com` organization we have typically 3 environments: **dev**, **qa** and **prod**. Each environment matches one rabbitmq vhost.
+- `bob` can view all vhosts via the management plugin however it does not have AMQP access to any vhost. Similarly occurs with `prometheus`.
+- Users can be assigned to one or many env/vhost. This allows them to access any AMQP resource (exchange, queue) on the corresponding vhost. For instance, we are going to grant `app100` user access to `dev` vhost and `app200` access to `prod` vhost.
 
 ## 1. Launch OpenLDPA
 
