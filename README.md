@@ -3,9 +3,11 @@
 # Prequisites
 
 
-- The examples assumes RabbitMQ is running locally
-- Install Docker. We will use Docker to run **OpenLdap**
-- Download latest **bin** release from [RabbitMq Perf Test](https://github.com/rabbitmq/rabbitmq-perf-test)
+- RabbitMQ is running locally (localhost:5672 and localhost:15672)
+- Docker is installed. We will use Docker to run **OpenLdap**
+- Ruby is installed. We will use it to run some AMQP clients.
+- Python is installed. We will use it to run [rabbitmqadmin](https://www.rabbitmq.com/management-cli.html)
+- `rabbitadmin` is installed.  Go to [http://localhost:15672/cli/rabbitmqadmin](http://localhost:15672/cli/rabbitmqadmin]), copy the downloaded file to your preferred location in your `PATH`
 
 
 # Integration scenarios
@@ -19,6 +21,9 @@
 
 # Best Practices | Recommendations
 
+In addition to all the recommendations done in the [rabbitmq ldap documentation](https://www.rabbitmq.com/ldap.html), it is worth keeping an eye on these other ones.
+
+
 ## Use rabbitmq-auth-backend-cache
 With external authz backends like the LDAP one we highly recommend using https://github.com/rabbitmq/rabbitmq-auth-backend-cache in production because under load RabbitMQ is known to hammer LDAP servers hard enough with queries that they can't keep up.
 
@@ -26,4 +31,7 @@ With external authz backends like the LDAP one we highly recommend using https:/
 Make sure the connection timeouts in your LDAP server are larger than your configured timeout (auth_ldap.timeout) otherwise your LDAP server may terminate the connection and the ldap plugin may fail to operate afterwards.
 
 ## Monitor log file to detect when RabbitMQ lost connection with LDAP server
-TODO : Add a sample log statement and the minimum configuration to enable it
+TODO : Add more sample log statements and the minimum configuration to enable it
+```
+[warning] <0.1777.0> HTTP access denied: rabbit_auth_backend_ldap failed authenticating bob: ldap_connect_error
+```
