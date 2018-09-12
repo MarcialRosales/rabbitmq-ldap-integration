@@ -3,7 +3,7 @@
 We expand on the previous scenario, [Authentication, User tags and Vhosts](../auth-tags-vhost/Readme.md), but this time we are going to configure which users get access to which resources -be it *exchange* and/or *queue*- and to do which operation -be it *declare*, *write* (send message to an exchange) and *read* (get or consume message from queue).
 
 These are our requirements for this scenario:
-  - Topology we need to support on `dev` vhost.
+  - Topology we need to support on vhost `dev`.
   ```
       |app100| ---X{app100-x-events}--->Q{app101-q-events}------> |app101|
         /\                                                           |
@@ -16,11 +16,11 @@ These are our requirements for this scenario:
 
   ```
   - General rules:
-    - All apps on the topology only has access to `dev`
-    - All apps are allowed to do all 3 operations on any exchange and queue that matches the pattern `<appName>-q-.*` for queues and `<appName>-x-.*` for exchanges
-  - `app100` needs to bind its queue `app100-q-confirmations` to the exchange `app102-x-confirmations` therefore it needs *read* access to that exchange too.
-  - `app101` is allowed to bind to any exchange declared by `app100`.
-  - `app102` is allowed to bind to `app101-x-requests`.
+    - All apps on the topology only has access to vhost `dev`
+    - All apps are allowed to do all 3 operations on any exchange and queue that matches the pattern `<appName>-q-.*` for queues and `<appName>-x-.*` for exchanges. In other words, applications can declare the resources they own.
+  - `app100` needs to bind its queue `app100-q-confirmations` to the exchange `app102-x-confirmations` therefore it needs *read* access to that exchange.
+  - `app101` needs to bind its queue `app101-q-events` to the exchange `app100-x-events` therefore it needs *read* access to that exchange.
+  - Likewise, `app102` needs to bind its queue `app102-q-requests` to the exchange `app101-x-requests`.
 
 > From the [docs](http://www.rabbitmq.com/access-control.html#permissions):   
 > RabbitMQ distinguishes between configure, write and read operations on a resource. The configure operations create or destroy resources, or alter their behaviour. The write operations inject messages into a resource. And the read operations retrieve messages from a resource.
@@ -31,10 +31,9 @@ Run `start.sh` script to launch **OpenLdap**. It will kill the container we ran 
 
 ## 2. Set up LDAP entries
 
-1. We are going to expand the LDAP structure we used in the [previous scenario](../authentication-and-tags/Readme.md).
-2. We are adding 3 more users : `app101`, `app102` and `admin-dev`
+We are going to expand the LDAP structure we used in the [previous scenario](../authentication-and-tags/Readme.md) by adding 3 more users : `app101`, `app102` and `admin-dev`
 
-We are going to alter the structure defined in the [previous scenario](../authentication-and-tags/Readme.md) as follows:
+Furthermore, we are going to alter the structure defined in the [previous scenario](../authentication-and-tags/Readme.md) as follows:
 1. We are adding one **organizational unit** per vhost: e.g. `ou=dev,ou=env,dc=example,dc=com`
 2. We are adding one **groupOfUniqueNames** called `users` per vhost: e.g. this is one for the `dev` vhost `cn=users,ou=dev,ou=env,dc=example,dc=com`
 3. We are adding one **groupOfUniqueNames** for each resource and type of operation -be it `configure`, `read` and `write`- when we want to grant access to a resource which is not "owned" by the application that created it.  
@@ -45,16 +44,16 @@ This is the resulting LDAP entries after we import them with the command `./impo
 
 Very briefly from top to bottom:
   1. At the Root/top is our organization.
-  2. From it hangs :
-    - the environments under `ou=env, ...`
-    - all the users/apps under `ou=People,...`
+  2. From it hangs:  
+    - the environments under `ou=env, ...`  
+    - all the users/apps under `ou=People,...`  
     - and the LDAP administrator user
-  3. From the environments hangs 2 environments,
-    - `ou=dev,...` and
-    - `ou=prod,...`.
-  4. From `dev` environment hangs 3 groups, but there could be more than 3
-    - `cn=users,..` group designate which users have access to this (`dev`) environment.
-    - `cn=administrator` group designate which users has the `policymaker` *user tag*  and can also `configure` (i.e. declare and delete) exchanges and queues. In the our scenario, we have chosen `cn=admin-dev,ou=People,..` to administer this environment.
+  3. From the environments hangs 2 environments:  
+    - `ou=dev,...` and  
+    - `ou=prod,...`.  
+  4. From `dev` environment hangs 3 group (but there could be more):   
+    - `cn=users,..` group designate which users have access to this (`dev`) environment  
+    - `cn=administrator` group designate which users has the `policymaker` *user tag*  and can also `configure` (i.e. declare and delete) exchanges and queues. In the our scenario, we have chosen `cn=admin-dev,ou=People,..` to administer this environment.  
     - Finally, the resource group called `cn=app100-x-events-read` which allows its members to read on the `app100-x-events` resource. We can create as many resource groups as needed.
 
 ```
@@ -150,8 +149,9 @@ Edit your **rabbimq.config**, add the following configuration and restart Rabbit
 
 
 **Configuration explained**:
-We could model fine grained authorization rules in `rabbitmq.config` under `resource_access_query` however this is not very convenient because in the event of any rule change we had to restart RabbitMQ.
-
+- We have granted `management` *user tags* to all users because any developer should be able to at least monitor its queues and exchanges, connections and channels. They will only be able to view the vhosts they are allowed to.
+- TODO explain tag_queries for policymaker
+- TODO explain resource_access_query
 
 
 ### 4. Verify Configuration
@@ -172,7 +172,7 @@ We could model fine grained authorization rules in `rabbitmq.config` under `reso
   > If you get fewer statements it means that we hit a "race condition" whereby publishers like app100
   publishes a message before any queue is bound to it. In production, we should use Alternate Exchanges to deal with
   this type of situations so that we dont loose any messages.
-  
+
 
 2. Make sure that `app100` cannot publish to `app101-x-requests` exchange
   ```
