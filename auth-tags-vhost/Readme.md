@@ -7,6 +7,9 @@ These are our requirements for this scenario:
 - `bob` can view all vhosts via the management plugin however it does not have AMQP access to any vhost. Similarly occurs with `prometheus`.
 - Users can be assigned to one or many env/vhost. This allows them to access any AMQP resource (exchange, queue) on the corresponding vhost. For instance, we are going to grant `app100` user access to `dev` vhost and `app200` access to `prod` vhost.
 
+> From the [docs](http://www.rabbitmq.com/access-control.html#permissions):  
+> When a RabbitMQ client establishes a connection to a server, it specifies a virtual host within which it intends to operate. A first level of access control is enforced at this point, with the server checking whether the user has any permissions to access the virtual hosts, and rejecting the connection attempt otherwise.
+
 ## 1. Launch OpenLDPA
 
 Run `start.sh` script to launch **OpenLdap**. It will kill the container we ran on the previous scenario and it will start a new one. This is so that we start with a clean LDAP database.
