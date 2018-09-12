@@ -89,13 +89,13 @@ Edit your **rabbimq.config**, add the following configuration and restart Rabbit
 ### 4. Verify Configuration
 
 1. Make sure that `app100` can access via AMQP to the vhost `dev`
-  `bin/runjava com.rabbitmq.perf.PerfTest --uri amqp://app100:password@localhost:5672/dev`
-2. Make sure that `app100` cannot access via AMQP to the vhost `prod`
-  `bin/runjava com.rabbitmq.perf.PerfTest --uri amqp://app100:password@localhost:5672/prod`
-    > Caused by: com.rabbitmq.client.ShutdownSignalException: connection error; protocol method: #method<connection.close>(reply-code=530, reply-text=NOT_ALLOWED - access to vhost 'prod' refused for user 'app100', class-id=10, method-id=40)
+  `ruby app100.rb dev`
+2. Make sure that `app100` **cannot** access via AMQP to the vhost `prod`
+  `ruby app100.rb prod`
 
 3. Make sure that `app200` can access via AMQP to the vhost `prod`
-  `bin/runjava com.rabbitmq.perf.PerfTest --uri amqp://app200:password@localhost:5672/prod`
+  `ruby app200.rb prod`
+  
 4. Make sure that `app100` cannot access the management plugin
   `curl -u app100:password http://localhost:15672/api/overview`
     > {"error":"not_authorised","reason":"Not management user"}
