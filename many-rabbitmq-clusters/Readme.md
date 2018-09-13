@@ -1,12 +1,12 @@
-# Many RabbitMq Clusters
+# Many RabbitMQ Clusters
 
-Can we leverage a single LDAP server to manage the identities of many independent Rabbitmq Clusters?  This is a situation we encounter in the on-demand RabbitMQ Tile in PCF.
+Can we leverage a single LDAP server to manage the identities of many independent RabbitMQ Clusters?  This is a situation we encounter in the on-demand RabbitMQ Tile in PCF.
 
 ## Option 1
 
 Users are defined in LDAP indistinctly of which cluster they are entitled to access.
 
-**RabbitMq topology**:
+**RabbitMQ topology**:
 ```
 
     on-demand-cluster1
@@ -18,7 +18,7 @@ Users are defined in LDAP indistinctly of which cluster they are entitled to acc
     multi-tenant
       +-- 10 vhosts: /, 0001, 0009
 ```
-**RabbitMq configuration & LDAP entries**:
+**RabbitMQ configuration & LDAP entries**:
   - All users follow the same DN:
     ```
     user_dn_pattern: cn=${username},ou=users,dc=example,dc=com
@@ -39,7 +39,7 @@ Users are defined in LDAP indistinctly of which cluster they are entitled to acc
       cn=0001-users,ou=on-demand-cluster1,ou=clusters,dc=example,dc=com
       members: cn=app1,ou=users,dc=example,dc=com
     ```
-    This setup requires each cluster to have its own distinct ldap configuration, specially the `vhost_access_query`.
+    This setup requires each cluster to have its own distinct LDAP configuration, specially the `vhost_access_query`.
     For instance, in the cluster `on-demand-cluster1` we would need this query:
     `cn=${vhost}-users,ou=on-demand-cluster1,ou=clusters,dc=example,dc=com`
 
@@ -47,16 +47,16 @@ Users are defined in LDAP indistinctly of which cluster they are entitled to acc
     `cn=${vhost}-users,ou=multi-tenant,ou=clusters,dc=example,dc=com`
 
 
-The question for RabbitMq on-demand is how we are going to define the cluster name:
+The question for RabbitMQ on-demand is how we are going to define the cluster name:
   - Can we use the service instance GUI which is assumed to be unique across all service instances?
   - or do we let the user pass a name via arguments to the `cf create-service`?
 
 
 ## Option 2
 
-Users are defined in LDAP under an organizational unit dedicated to each cluster. In other words, clusters do not share their users. 
+Users are defined in LDAP under an organizational unit dedicated to each cluster. In other words, clusters do not share their users.
 
-**RabbitMq topology**:
+**RabbitMQ topology**:
 ```
 
     on-demand-cluster1
@@ -69,7 +69,7 @@ Users are defined in LDAP under an organizational unit dedicated to each cluster
       +-- 10 vhosts: /, 0001, 0009
 ```
 
-**RabbitMq configuration & LDAP entries**:
+**RabbitMQ configuration & LDAP entries**:
   - Each cluster has its own organizatinal unit:
     ```
     ou=multi-tenant,dc=example,dc=com
