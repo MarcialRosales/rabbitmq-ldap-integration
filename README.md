@@ -1,6 +1,6 @@
 # RabbitMQ integration with LDAP
 
-The main goal of this guide is to demonstrate, step by step, how to set up RMQ to authenticate and authorize via the LDAP plugin. It start with a very simple scenario, [Only Authentication](only-authentication/Readme.md), which just configures RabbitMQ to authenticate users via LDAP.
+The main goal of this guide is to demonstrate, step by step, how to set up RabbitMQ to authenticate and authorize via the LDAP plugin. It start with a very simple scenario, [Only Authentication](only-authentication/Readme.md), which just configures RabbitMQ to authenticate users via LDAP.
 
 Every scenario helps the user launch an OpenLDAP server, import required LDAP entries to work with scenario and configure RabbitMQ for the scenario. It also helps the user verify the configuration.  
 
