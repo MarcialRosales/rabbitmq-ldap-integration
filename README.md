@@ -1,8 +1,4 @@
-
-
 # Prequisites
-
-
 - RabbitMQ is running locally (localhost:5672 and localhost:15672)
 - Docker is installed. We will use Docker to run **OpenLdap**
 - Ruby is installed. We will use it to run some AMQP clients.
@@ -11,7 +7,6 @@
 
 
 # Integration scenarios
-
 - [Only Authentication](only-authentication/Readme.md)
 - [Authentication and User tags](authentication-and-tags/Readme.md)
 - [Authentication, User tags and Vhosts](auth-tags-vhost/Readme.md)
@@ -20,9 +15,7 @@
 
 
 # Best Practices | Recommendations
-
 In addition to all the recommendations done in the [rabbitmq ldap documentation](https://www.rabbitmq.com/ldap.html), it is worth keeping an eye on these other ones.
-
 
 ## Use rabbitmq-auth-backend-cache
 With external authz backends like the LDAP one we highly recommend using https://github.com/rabbitmq/rabbitmq-auth-backend-cache in production because under load RabbitMQ is known to hammer LDAP servers hard enough with queries that they can't keep up.
