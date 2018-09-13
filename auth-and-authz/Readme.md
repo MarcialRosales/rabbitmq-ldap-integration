@@ -25,9 +25,9 @@ These are our requirements for this scenario:
 > From the [docs](http://www.rabbitmq.com/access-control.html#permissions):   
 > RabbitMQ distinguishes between configure, write and read operations on a resource. The configure operations create or destroy resources, or alter their behaviour. The write operations inject messages into a resource. And the read operations retrieve messages from a resource.
 
-## 1. Launch OpenLDPA
+## 1. Launch OpenLDAP
 
-Run `start.sh` script to launch **OpenLdap**. It will kill the container we ran on the previous scenario and it will start a new one. This is so that we start with a clean LDAP database.
+Run `start.sh` script to launch **OpenLDAP**. It will kill the container we ran on the previous scenario and it will start a new one. This is so that we start with a clean LDAP database.
 
 ## 2. Set up LDAP entries
 
@@ -87,71 +87,67 @@ cn=app102,..
 cn=admin-dev,...
 ```
 
+Run the following command to create this structure:   
+```
+./import.sh
+```
 
 There are no new vhosts on this scenario. However, run the following command to create the vhosts if you haven't created them yet:  
 `./create-vhosts.sh`
 > Vhosts must exist in RabbitMQ whereas users and their permissions don't because they are defined in LDAP.
 
+### 3. Configure RabbitMq to authenticate users with our LDAP server, grant user tags and configure resource access control
 
-### 3. Configure RabbitMq to authenticate users with our LDAP server and grant administrator and monitoring user tags
-
-Edit your **rabbimq.config**, add the following configuration and restart Rabbit:
+Edit your **rabbimq.config**, add the following configuration and restart RabbitMQ:
 ```
 [
-    { rabbit,
-      [
+    {rabbit, [
         {auth_backends, [rabbit_auth_backend_ldap]}
-      ]
-    },
-    { rabbitmq_auth_backend_ldap,
-      [
-        {servers,               ["localhost"] },
+    ]},
+    {rabbitmq_auth_backend_ldap, [
+        {servers,               ["localhost"]},
         {user_dn_pattern,       "cn=${username},ou=People,dc=example,dc=com"},
-
-        {other_bind,            { "cn=admin,dc=example,dc=com", "admin"  } },
-
+        {other_bind,            {"cn=admin,dc=example,dc=com", "admin"}},
         {tag_queries, [
-               {administrator,  { in_group, "cn=administrator,ou=groups,dc=example,dc=com" , "uniqueMember" }},
-               {monitoring,     { in_group, "cn=monitoring,ou=groups,dc=example,dc=com" , "uniqueMember" }},
-               {management,     { constant, true }},
-               {policymaker,    { in_group, "cn=administrator,ou=${vhost},ou=env,dc=example,dc=com", "uniqueMember" }}
-               ]
-        },
-        {vhost_access_query,    { in_group, "cn=users,ou=${vhost},ou=env,dc=example,dc=com", "uniqueMember" }},
+            {administrator,     {in_group, "cn=administrator,ou=groups,dc=example,dc=com", "uniqueMember"}},
+            {monitoring,        {in_group, "cn=monitoring,ou=groups,dc=example,dc=com", "uniqueMember"}},
+            {management,        {constant, true}},
+            {policymaker,       {in_group, "cn=administrator,ou=${vhost},ou=env,dc=example,dc=com", "uniqueMember"}}
+        ]},
+        {vhost_access_query,    {in_group, "cn=users,ou=${vhost},ou=env,dc=example,dc=com", "uniqueMember"}},
         {resource_access_query,
-          { 'or',
-            [
-              { for, [ { permission, configure, { in_group, "cn=administrator,ou=${vhost},ou=env,dc=example,dc=com", "uniqueMember" } } ]
-              },
-              { for, [
-                      {resource, exchange, { match,
-                                                    { string, "${name}" },
-                                                    { string, "^${username}-x" }
-                                            }
-                      },
-                      {resource, queue, { match,
-                                                    { string, "${name}" },
-                                                    { string, "^${username}-q" }
-                                            }
-                      }
-                     ]
-              },
-              { in_group, "cn=${name}-${permission},ou=${vhost},ou=env,dc=example,dc=com", "uniqueMember" }                
-            ]
-          }
+            {'or', [
+                {for, [
+                    {permission, configure, {in_group, "cn=administrator,ou=${vhost},ou=env,dc=example,dc=com", "uniqueMember"}}
+                ]},
+                {for, [
+                    {resource, exchange, {match,
+                                             {string, "${name}"},
+                                             {string, "^${username}-x"}
+                    }},
+                    {resource, queue,    {match,
+                                             {string, "${name}"},
+                                             {string, "^${username}-q"}
+                    }}
+                ]},
+                {in_group, "cn=${name}-${permission},ou=${vhost},ou=env,dc=example,dc=com", "uniqueMember"}                
+            ]}
         },
         {log, network}
-
-      ]
-    }
+    ]}
 ].
 ```
 
-
 **Configuration explained**:
+
 - We have granted `management` *user tags* to all users because any developer should be able to at least monitor its queues and exchanges, connections and channels. They will only be able to view the vhosts they are allowed to.
-- TODO explain tag_queries for policymaker
-- TODO explain resource_access_query
+- Each environment/vhost has an administrator user group (e.g. `cn=administrator,ou=dev,ou=env,dc=example,dc=com` on the `dev` vhost) which grants `policymaker` *user tags* to all its members.
+- Access control to resources like *Exchanges* and *Queues* works as follows:
+  - To be able to *configure* an *Exchange* and/or a *Queue*, the user must be either a member of the `cn=administrator,...` user group on the vhost (e.g. `cn=administrator,ou=dev,ou=env,dc=example,dc=com`) **OR** the owner of the resource (i.e. resources whose name start with the username, e.g. `app100-x-events` is an exchanged owned by `app100`)
+  - A user has full rights (i.e. *configure*, *read*, *write*) on any resource whose name starts with the username.  
+  For instance, the user `app100` can declare a *queue* called `app100-q-confirmations` and/or an *exchange* called `app100-x-events`.
+  - In order for a user to get access to a resource that does not own, such as to bind to an exchange defined by other user, the user must be a member of a user group which grants the requested **permission** on the requested **resource's name**.  
+  For instance, for `app101` user to be able to bind its queue to the exchange `app100-x-events`, it must be a member of the group `cn=app100-x-events-read,ou=dev,ou=env,dc=example,dc=com` which grants *read* access to the resource `app100-x-events`.
 
 
 ### 4. Verify Configuration
