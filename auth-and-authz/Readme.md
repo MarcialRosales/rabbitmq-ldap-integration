@@ -190,7 +190,7 @@ Edit your **rabbimq.config**, add the following configuration and restart Rabbit
   rabbitmqadmin  --vhost dev --username app100 --password password delete exchange name="app100-x-events"
   ```
 
-4. Make sure that `admin-dev` can create policies on `dev`
+4. Make sure that `admin-dev` can create *Regular* policies on `dev`. (Check out [Difference between Regular and Operator Policies](https://www.rabbitmq.com/parameters.html#why-operator-policies-exist))
   ```
   rabbitmqadmin  --vhost dev --username admin-dev --password password declare policy name='ttl-policy' \
    pattern='app101-q-events' definition='{"message-ttl":60000}'
@@ -200,7 +200,13 @@ Edit your **rabbimq.config**, add the following configuration and restart Rabbit
   rabbitmqadmin  --vhost dev --username admin-dev --password password list policies
   ```
 
-5. Make sure that `app101` cannot delete resources it does not own, e.g `app102-x-confirmations`
+5. `bob`, as `administrator` (i.e. it has the `admnistrator` *user tag* of the RabbitMQ cluster, is the only user allowed to create [Operator Policies](https://www.rabbitmq.com/parameters.html#operator-policies).
+  ```
+  rabbitmqadmin  --vhost dev --username bob  --password password  declare operator_policy name="ttl-operator-policy" pattern='.*' definition='{"message-ttl":30000}'
+  ```
+  If we try create an operator policy as `admin-dev` we get an **Access Refused**.
+
+6. Make sure that `app101` cannot delete resources it does not own, e.g `app102-x-confirmations`
   ```
   rabbitmqadmin  --vhost dev --username app101 --password password delete exchange name="app102-x-confirmations"
   ```
