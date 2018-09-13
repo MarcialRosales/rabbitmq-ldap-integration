@@ -27,6 +27,8 @@ dn:
 namingContexts: dc=example,dc=com
 ```
 
+> Note with regard start.sh: We can run it as many times as want. If it was already running, it will kill it and start new one. This is so that we start with a clean LDAP database. You will need to import the schema again though.
+
 ## 2. Brief Introduction to LDAP
 
 For those who are new to LDAP, think of LDAP as a file system. On a file system, we create files and typically we create them under directories/subfolders. Similarly, in LDAP we create *objects* rather than files and those *objects* are created within a naming scheme similar to directories. In a file system, we can refer to a file by using its name (e.g. `Readme.md`) or by using its absolute path (`/home/bob/Readme.md`). Similarly, in LDAP an *object* has a name specified by the attribute `cn` (Common Name) but more importantly it has a unique and fully qualified name `dn` (Distinguised Name). For instance, the single user defined in our LDAP installation has the name `cn=admin` and its fully qualified name is `cn=admin,dc=example,dc=com`.
@@ -109,7 +111,7 @@ This is the LDAP organization we are aiming for:
 Run the following command to create this structure:
 
 ```
-ldapadd -x -w admin -f import.ldif
+./import.sh
 ```
 
 `import.ldif` follows LDAP format to define the objects we want to create.
@@ -149,7 +151,7 @@ dn: cn=bill,ou=People,dc=example,dc=com
 
 ### 4. Configure RabbitMQ to authenticate users with our LDAP server
 
-Edit the `/etc/rabbitmq/rabbitmq.config` file and add the following configuration:
+Edit the `/etc/rabbitmq/rabbitmq.config` file, add the following configuration and restart RabbitMQ:
 
 ```
 [
@@ -161,12 +163,13 @@ Edit the `/etc/rabbitmq/rabbitmq.config` file and add the following configuratio
         {user_dn_pattern, "cn=${username},ou=People,dc=example,dc=com"},
         {tag_queries, [
             {administrator, {constant, false}},
-            {management,    {constant, true }}
+            {management,    {constant, true}}
         ]},
         {log, network}
     ]}
 ].
 ```
+> This same configuration is available in the file rabbitmq.config should you want to copy files.
 
 **Configuration explained**:
 

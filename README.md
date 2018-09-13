@@ -1,8 +1,18 @@
-# Prequisites
+# RabbitMQ integration with LDAP
 
+The main goal of this guide is to demonstrate, step by step, how to set up RMQ to authenticate and authorize via the LDAP plugin. It start with a very simple scenario, [Only Authentication](only-authentication/Readme.md), which just configures RabbitMQ to authenticate users via LDAP.
 
+Every scenario helps the user launch an OpenLDAP server, import required LDAP entries to work with scenario and configure RabbitMQ for the scenario. It also helps the user verify the configuration.  
+
+The guide continues further configuring RabbitMQ with LDAP to secure vhost access, secure resource access and management plugin access too.
+
+The last scenario,  [Authentication and Authorization (tags, vhosts, resources)](auth-and-authz/Readme.md), is the most complete one and it is just one possible LDAP+RabbitMQ scenarios out of the many we may encounter in real-world.
+
+The aim of this repository is to address more scenarios in the future.
+
+## Prequisites to follow this guide
 - RabbitMQ is running locally (localhost:5672 and localhost:15672)
-- Docker is installed. We will use Docker to run **OpenLdap**
+- Docker is installed. We will use Docker to run **OpenLDAP**
 - Ruby is installed. We will use it to run some AMQP clients.
 - Python is installed. We will use it to run [rabbitmqadmin](https://www.rabbitmq.com/management-cli.html)
 - `rabbitadmin` is installed.  Go to [http://localhost:15672/cli/rabbitmqadmin](http://localhost:15672/cli/rabbitmqadmin]), copy the downloaded file to your preferred location in your `PATH`
@@ -12,17 +22,18 @@ TL;DR : With external authz backends like the LDAP one we highly recommend using
 
 Make sure the connection timeouts in your LDAP server are larger than your configured timeout (`auth_ldap.timeout`) otherwise your LDAP server may terminate the connection and the LDAP plugin may fail to operate afterwards. RabbitMQ 3.7.6 and later versions have addressed these re-connection issues.
 
-# Integration scenarios
-
+## Implemented Integration scenarios
 - [Only Authentication](only-authentication/Readme.md)
 - [Authentication and User tags](authentication-and-tags/Readme.md)
 - [Authentication, User tags and Vhosts](auth-tags-vhost/Readme.md)
 - [Authentication and Authorization (tags, vhosts, resources)](auth-and-authz/Readme.md)
-- [Many RabbitMq Clusters](many-rabbitmq-clusters/Readme.md)
+
+## Future Integration scenarios
+- [Many RabbitMQ Clusters](many-rabbitmq-clusters/Readme.md)
 
 # Best Practices | Recommendations
 
-In addition to all the recommendations done in the [rabbitmq ldap documentation](https://www.rabbitmq.com/ldap.html), it is worth keeping an eye on these other ones.
+In addition to all the recommendations done in the [RabbitMQ LDAP documentation](https://www.rabbitmq.com/ldap.html), it is worth keeping an eye on these other ones.
 
 ## Use rabbitmq-auth-backend-cache
 
