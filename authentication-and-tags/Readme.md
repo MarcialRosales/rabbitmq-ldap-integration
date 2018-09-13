@@ -70,7 +70,6 @@ Edit your **rabbimq.config**, add the following configuration and restart Rabbit
 
 > This same configuration is available in the file rabbitmq.config should you want to copy files.
 
-
 **Configuration explained**:
 
 - What is RabbitMQ doing to check whether `bob` has the `administrator` *user tag*? It is running something like this:
