@@ -76,7 +76,7 @@ If we wanted to return only the users which has the class `simpleSecurityObject`
 ldapsearch -x -b "dc=example,dc=com" -w admin "(objectClass=simpleSecurityObject)"
 ```
 
-> Note: We always have to specify the password `-w admin` however we dont specify the hostname or port because that is defined in the `~/.ldaprc` file.
+Note: We always have to specify the password `-w admin` however we dont specify the hostname or port because that is defined in the `~/.ldaprc` file.
 
 Or if we wanted to search by its `cn` attribute:
 
@@ -169,7 +169,8 @@ Edit the `/etc/rabbitmq/rabbitmq.config` file, add the following configuration a
     ]}
 ].
 ```
-> This same configuration is available in the file rabbitmq.config should you want to copy files.
+
+This same configuration is available in the file rabbitmq.config should you want to copy files.
 
 **Configuration explained**:
 
