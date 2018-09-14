@@ -76,15 +76,13 @@ If we wanted to return only the users which has the class `simpleSecurityObject`
 ldapsearch -x -b "dc=example,dc=com" -w admin "(objectClass=simpleSecurityObject)"
 ```
 
-> Note: We always have to specify the password `-w admin` however we dont specify the hostname or port because that is defined in the `~/.ldaprc` file.
+Note: We always pass the password (`-w admin`). We omit the hostname and port because they in the `~/.ldaprc` file.
 
-Or if we wanted to search by its `cn` attribute:
+To search an entry by its `cn` attribute. We omit the base dn `-b  "dc=example,dc=com"` because it is also in `~/.ldaprc`.
 
 ```
-ldapsearch -x -w admin "cn=admin
+ldapsearch -x -w admin "cn=admin"
 ```
-
-Note: We can also omit the base dn `-b  "dc=example,dc=com"` that is also in the  `~/.ldaprc` file.
 
 ## 3. Create users in LDAP
 
