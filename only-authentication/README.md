@@ -154,20 +154,21 @@ Edit the `/etc/rabbitmq/rabbitmq.config` file, add the following configuration a
 ```
 [
     {rabbit, [
-        {auth_backends, [rabbit_auth_backend_LDAP]}
+        {auth_backends, [rabbit_auth_backend_ldap]}
     ]},
     {rabbitmq_auth_backend_ldap, [
-        {servers,         [ "localhost"]},
+        {servers,         ["localhost"]},
         {user_dn_pattern, "cn=${username},ou=People,dc=example,dc=com"},
         {tag_queries, [
             {administrator, {constant, false}},
             {management,    {constant, true}}
         ]},
-        {log, network}
+        {log, network_unsafe}
     ]}
 ].
 ```
-> This same configuration is available in the file rabbitmq.config should you want to copy files.
+
+This same configuration is available in the file rabbitmq.config should you want to copy files.
 
 **Configuration explained**:
 
