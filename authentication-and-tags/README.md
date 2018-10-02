@@ -2,9 +2,19 @@
 
 We expand on the previous scenario, [Only Authentication](../only-authentication/Readme.md), but this time we are going to configure which users gets which *user tags*.
 
-To get the `administrator` *user tag*, users must belong to the LDAP group `cn=administrator,ou=groups,dc=example,dc=com`. To get the `monitoring` *user tag*, users must belong to the LDAP group `cn=monitoring,ou=groups,dc=example,dc=com`.
+To get the `administrator` user tag, users must belong to this LDAP group:
 
-We are going to grant `bob` the `administrator` *user tag* and we are going to create a new user called `prometheus` with the `monitoring` *user tag*. No other users have any *user tags* therefore they wont be able to access the management plugin (console and/or api).
+```
+cn=administrator,ou=groups,dc=example,dc=com
+```
+
+To get the `monitoring` user tag, users must belong to this LDAP group:
+
+```
+cn=monitoring,ou=groups,dc=example,dc=com
+```
+
+We are going to grant `bob` the `administrator` user tag and we are going to create a new user called `prometheus` with the `monitoring` user tag. No other users have any *user tags* therefore they wont be able to access the management plugin (console and/or api).
 
 ## 1. Launch OpenLDAP
 
@@ -72,7 +82,7 @@ This same configuration is available in the file `rabbitmq.config` should you wa
 
 **Configuration explained**:
 
-- What is RabbitMQ doing to check whether `bob` has the `administrator` *user tag*? It is running something like this:
+- What is RabbitMQ doing to check whether `bob` has the `administrator` user tag? It is running something like this:
 
 ```
 ldapsearch -x -b "cn=administrator,ou=groups,dc=example,dc=com" -D "cn=admin,dc=example,dc=com" -w admin -LLL "(uniqueMember=cn=bob,ou=People,dc=example,dc=com)"
@@ -80,6 +90,6 @@ ldapsearch -x -b "cn=administrator,ou=groups,dc=example,dc=com" -D "cn=admin,dc=
 
 - Why do we need to configure `{other_bind, {"cn=admin,dc=example,dc=com", "admin"}},`? **Bind** is the authentication/login request in LDAP. Before we run any query, we must first bind with a given set of credentials. In our LDAP server, the user `cn=admin,dc=example,dc=com` can see every LDAP entry but the users we just created, i.e. `bob`, `joe` and `bill`, cannot see anything else except their own entry. By default, RabbitMQ uses the currently logged in user to run  *Authorization Queries* against LDAP. In other words, if we logged in as `bill`, RabbitMQ will bind this same user to run *Authorization Queries* such as *tag_queries*. However, those queries will not work because our user `bill` can barely see any LDAP entry so they wont see `ou=groups,dc=example,dc=com` or any entry underneath it. Should we encounter this situation, we can configure RabbitMQ to use a different user to bind with when running  *Authorization Queries*.
 
-- How do we grant `bob` the `administrator` *user tag*? We just need to place an `in_group` query that checks whether `bob` -the currently logged in user- is a member of the `cn=administrator,ou=groups,dc=example,dc=com` group.
+- How do we grant `bob` the `administrator` user tag? We just need to place an `in_group` query that checks whether `bob` -the currently logged in user- is a member of the `cn=administrator,ou=groups,dc=example,dc=com` group.
 
 - In the RabbitMQ docs, the attribute `member` is used instead of `uniqueMember`, why is that? This is because this installation of OpenLDAP did not support `GroupOfNames` objectType but `GroupOfUniqueNames` and this type of object has an attribute called `uniqueMember` rather than `member`.
