@@ -79,14 +79,14 @@ cn=admin-dev,...
 
 From top to bottom:
   1. At the Root/top is our organization.
-  2. From it hangs:
+  2. From it hangs:  
     - the environments/vhosts under `ou=env, ...`
     - all the users/apps under `ou=People,...`
     - and the LDAP administrator user
-  3. From the environments hangs 2 environments:
+  3. From the environments hangs 2 environments:  
     - `ou=dev,...` and
     - `ou=prod,...`.
-  4. From `dev` environment hangs 3 groups, but there could be more:
+  4. From `dev` environment hangs 3 groups, but there could be more:  
     - `cn=users,..` group designate which users have access to this (`dev`) environment
     - `cn=administrator` group designate which users has the `policymaker` *user tag*  and can also `configure` (i.e. declare and delete) exchanges and queues. In the our scenario, we have chosen `cn=admin-dev,ou=People,..` to administer this environment.
     - Finally, the resource group called `cn=app100-x-events-read` which allows its members to read on the `app100-x-events` resource. We can create as many resource groups as needed.
