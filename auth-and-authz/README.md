@@ -44,7 +44,7 @@ Furthermore, we are going to alter the structure defined in the [previous scenar
     ```
     cn=administrator,ou=dev,ou=env,dc=example,dc=com
     ```
-4. We are adding another **groupOfUniqueNames** for each resource and operation only when we want to grant access to users who do not "own" the resource. For instance, if we want to let user `app101` bind to the exchange `app100-x-events` (which is owned by `app100`) we need to create a user group with this DN `cn=app100-x-events-read,ou=dev,ou=env,dc=example,dc=com` (if it does not exist yet) with `app101` as a member of that group. The `read` permission is necessary to bind to an exchange.  
+4. We are adding another **groupOfUniqueNames** for each resource and operation only when we want to grant access to users who do not "own" the resource. For instance, if we want to let user `app101` bind to the exchange `app100-x-events` (which is owned by `app100`) we need to create a user group with this DN `cn=app100-x-events-read,ou=dev,ou=env,dc=example,dc=com` (if it does not exist yet) with `app101` as a member of that group. The `read` permission is necessary to bind to an exchange.
 
 ```
           dc=example, dc=com
@@ -78,15 +78,16 @@ cn=admin-dev,...
 ```
 
 From top to bottom:
-  1. At the Root/top is our organization.
-  2. From it hangs:  
+
+1. At the Root/top is our organization.
+2. From it hangs:
     - the environments/vhosts under `ou=env, ...`
     - all the users/apps under `ou=People,...`
     - and the LDAP administrator user
-  3. From the environments hangs 2 environments:  
+3. From the environments hangs 2 environments:
     - `ou=dev,...` and
     - `ou=prod,...`.
-  4. From `dev` environment hangs 3 groups, but there could be more:  
+4. From `dev` environment hangs 3 groups, but there could be more:
     - `cn=users,..` group designate which users have access to this (`dev`) environment
     - `cn=administrator` group designate which users has the `policymaker` *user tag*  and can also `configure` (i.e. declare and delete) exchanges and queues. In the our scenario, we have chosen `cn=admin-dev,ou=People,..` to administer this environment.
     - Finally, the resource group called `cn=app100-x-events-read` which allows its members to read on the `app100-x-events` resource. We can create as many resource groups as needed.
