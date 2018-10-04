@@ -27,7 +27,8 @@ dn:
 namingContexts: dc=example,dc=com
 ```
 
-> Note with regard start.sh: We can run it as many times as want. If it was already running, it will kill it and start new one. This is so that we start with a clean LDAP database. You will need to import the schema again though.
+Note with regard `start.sh`:
+> We can run it as many times as want. If it was already running, it will kill it and start new one. This is so that we start with a clean LDAP database. You will need to import the schema again though.
 
 ## 2. Brief Introduction to LDAP
 
@@ -168,7 +169,7 @@ Edit the `/etc/rabbitmq/rabbitmq.config` file, add the following configuration a
 ].
 ```
 
-This same configuration is available in the file rabbitmq.config should you want to copy files.
+This same configuration is available in the file `rabbitmq.config` should you want to copy files.
 
 **Configuration explained**:
 
