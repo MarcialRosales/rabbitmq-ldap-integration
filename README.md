@@ -1,12 +1,12 @@
 # RabbitMQ integration with LDAP
 
-The main goal of this guide is to demonstrate, step by step, how to set up RabbitMQ to authenticate and authorize via the LDAP plugin. It starts with a very simple scenario, [Only Authentication](only-authentication/Readme.md), which just configures RabbitMQ to authenticate users via LDAP.
+The main goal of this guide is to demonstrate, step by step, how to set up RabbitMQ to authenticate and authorize via the LDAP plugin. It starts with a very simple scenario, [Only Authentication](only-authentication/README.md), which just configures RabbitMQ to authenticate users via LDAP.
 
 Every scenario helps the user launch an OpenLDAP server, import required LDAP entries to work with the scenario and configure RabbitMQ accordingly. It also helps the user verify the configuration.  
 
 The guide continues further configuring RabbitMQ with LDAP to secure vhost access, secure resource (i.e. *exchanges* and *queues*) access and management plugin access too.
 
-The last scenario, [Authentication and Authorization (tags, vhosts, resources)](auth-and-authz/Readme.md), is the most complete one and it is one possible LDAP+RabbitMQ scenario out of the many we may encounter in real-world.
+The last scenario, [Authentication and Authorization (tags, vhosts, resources)](auth-and-authz/README.md), is the most complete one and it is one possible LDAP+RabbitMQ scenario out of the many we may encounter in real-world.
 
 The aim of this repository is to address more scenarios in the future.
 
@@ -20,14 +20,14 @@ The aim of this repository is to address more scenarios in the future.
 
 ## Implemented Integration scenarios
 
-- [Only Authentication](only-authentication/Readme.md)
-- [Authentication and User tags](authentication-and-tags/Readme.md)
-- [Authentication, User tags and Vhosts](auth-tags-vhost/Readme.md)
-- [Authentication and Authorization (tags, vhosts, resources)](auth-and-authz/Readme.md)
+- [Only Authentication](only-authentication/README.md)
+- [Authentication and User tags](authentication-and-tags/README.md)
+- [Authentication, User tags and Vhosts](auth-tags-vhost/README.md)
+- [Authentication and Authorization (tags, vhosts, resources)](auth-and-authz/README.md)
 
 ## Future Integration scenarios
 
-- [Many RabbitMQ Clusters](many-rabbitmq-clusters/Readme.md)
+- [Many RabbitMQ Clusters](many-rabbitmq-clusters/README.md)
 
 # Best Practices | Recommendations
 

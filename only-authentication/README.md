@@ -27,7 +27,8 @@ dn:
 namingContexts: dc=example,dc=com
 ```
 
-> Note with regard start.sh: We can run it as many times as want. If it was already running, it will kill it and start new one. This is so that we start with a clean LDAP database. You will need to import the schema again though.
+Note with regard `start.sh`:
+> We can run it as many times as want. If it was already running, it will kill it and start new one. This is so that we start with a clean LDAP database. You will need to import the schema again though.
 
 ## 2. Brief Introduction to LDAP
 
@@ -154,20 +155,21 @@ Edit the `/etc/rabbitmq/rabbitmq.config` file, add the following configuration a
 ```
 [
     {rabbit, [
-        {auth_backends, [rabbit_auth_backend_LDAP]}
+        {auth_backends, [rabbit_auth_backend_ldap]}
     ]},
     {rabbitmq_auth_backend_ldap, [
-        {servers,         [ "localhost"]},
+        {servers,         ["localhost"]},
         {user_dn_pattern, "cn=${username},ou=People,dc=example,dc=com"},
         {tag_queries, [
             {administrator, {constant, false}},
             {management,    {constant, true}}
         ]},
-        {log, network}
+        {log, network_unsafe}
     ]}
 ].
 ```
-> This same configuration is available in the file rabbitmq.config should you want to copy files.
+
+This same configuration is available in the file `rabbitmq.config` should you want to copy files.
 
 **Configuration explained**:
 
