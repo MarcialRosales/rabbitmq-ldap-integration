@@ -60,14 +60,15 @@ Let's say users are organized in LDAP in a more hierarchical fashion like shown 
    dc=com       dc=com        dc=com           dc=com
 ```
 
-Users like `bob` or `joe` are no longer under the common parent LDAP entry `ou=People,dc=example,dc=com` but under their respective departments. `bob` under `ou=depart1,dc=example,dc=com` and `joe` under `ou=depart2,dc=example,dc=com`,
+Users like `bob` or `joe` are no longer under the common parent LDAP entry like `ou=People,dc=example,dc=com` but under their respective departments: `bob` under `ou=depart1,dc=example,dc=com` and `joe` under `ou=depart2,dc=example,dc=com`.
 
-With this LDAP organization, we cannot look up users per their DN because they do not share a parent branch. Instead, we have to use a different lookup mechanism which has the following prerequisites:
-1. All users in LDAP must have an attribute that we are going to refer to in the RabbitMQ configuration. We are going to use the `mail` attribute because all our users have the *ObjectClass* `inetOrgPerson` which defines the `mail` attribute.
-2. We have to configure RabbitMQ to use the `mail` attribute like this:  `{dn_lookup_attribute, "mail"}`.
-3. All users must have a *common base DN*. This is the *base DN* that RabbitMQ will use to lookup for the user's LDAP entry. In our example, the base DN is `dc=example,dc=com`.
+With this LDAP organization, we cannot look up users based on a DN pattern like `"cn=${username},ou=People,dc=example,dc=com"` because they do not share the same parent branch. Instead, we have to use a different lookup mechanism.
 
-Putting all the pieces together, in order to authenticate a user RabbitMQ first finds an LDAP entry where the `dn_lookup_attribute` matches the username used by the RabbitMQ client to login. Once it finds the LDAP entry, it retrieves its DN and it makes a second lookup but this time using the user's DN. The second lookup is necessary in order to check its password.
+This new lookup mechanism has the following two prerequisites:
+1. All users in LDAP must have the same LDAP attribute. In our scenario, we are going to use the `mail` attribute because all our users have the *ObjectClass* `inetOrgPerson` which defines the `mail` attribute. Later on we will see how we configure RabbitMQ to use this `mail` attribute
+2. All users must have a *common base DN*. This is the *base DN* that RabbitMQ will use to search for the user's LDAP entry. In our example, the base DN is `dc=example,dc=com`.
+
+Putting all the pieces together, in order to authenticate a user RabbitMQ first searches for an LDAP entry where the `dn_lookup_attribute` matches the username used by the RabbitMQ client to login. Once it finds the LDAP entry, it retrieves its DN and it binds using the user's DN and password.
 
 ## 1. Launch OpenLDAP
 
@@ -82,7 +83,6 @@ Run the following command to create this LDAP structure shown in the diagram:
 ```
 
 It creates 4 users under their respective departments. The users' password is `password`.
-
 
 ### 3. Configure RabbitMQ
 
