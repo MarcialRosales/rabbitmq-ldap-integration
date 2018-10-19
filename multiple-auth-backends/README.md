@@ -56,7 +56,7 @@ We are going to run all possible scenarios to fully understand how exactly we ca
 ### Scenario 1
 Given this setup
 - `{auth_backends, [rabbit_auth_backend_ldap, rabbit_auth_backend_internal]}`
-- `bob`:`ldap` (<username>:<password>) exists in LDAP backend and has the *administrator* *user tag*
+- `bob`:`ldap` (user `bob` with password `ldap`) exists in LDAP backend and has the *administrator* *user tag*
 - `bob`:`internal` exists in the internal backend and has the *management* *user tag*
 
 When I try to login with `bob`:`ldap`,
