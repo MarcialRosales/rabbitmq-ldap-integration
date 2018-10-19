@@ -118,6 +118,6 @@ We can read this configuration as follows: [ {`authN_backend_1`, `authZ_backend_
 We can read this configuration as follows: [ {`authN_backend_1`, `authZ_backend_1`}, { `auth_backend_2`} ]. `auth_backend_2` is the fallback to `authN_backend_1`.
 
 - Users are first authenticated with **LDAP** (`authN_backend_1`)
-- If **LDAP** accepts it, Users are then authorized with **internal** (`authZ_backend_1`}).
+- If **LDAP** accepts it, Users are then authorized with **internal** (`authZ_backend_1`).
 - If **LDAP** does not accept it, Users are then authenticated with **internal** (`auth_backend_2`). Authorization is also performed by **internal** too (`auth_backend_2`).
-- This configuration implies that all users must be defined in **internal** because access control is done by **internal**. However, we dont need to have all users's passwords in **internal**, they can be defined in **LDAP** if required. Else, the password will also be defined in **internal**.
+- This configuration implies that all users must be defined in **internal** because authorization is always done by **internal**. However, we don't need to have all users' passwords in **internal**, they can be defined in **LDAP** if required. In the contrary, the password has to be also defined in **internal**.
