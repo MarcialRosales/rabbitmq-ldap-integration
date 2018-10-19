@@ -48,7 +48,7 @@ Edit your **rabbimq.config**, add the following configuration and restart Rabbit
 ```
 
 
-## Exploring all possible configurations with auth_backends
+# Exploring all possible configurations with auth_backends
 
 We are going to run all possible scenarios to fully understand how exactly we can configure `auth_backends` to support multiple AuthN and AuthZ backends.
 
@@ -56,7 +56,7 @@ We are going to run all possible scenarios to fully understand how exactly we ca
 ### Scenario 1
 Given this setup
 - `{auth_backends, [rabbit_auth_backend_ldap, rabbit_auth_backend_internal]}`
-- `bob`:`ldap` exists in LDAP backend and has the *administrator* *user tag*
+- `bob`:`ldap` (<username>:<password>) exists in LDAP backend and has the *administrator* *user tag*
 - `bob`:`internal` exists in the internal backend and has the *management* *user tag*
 
 When I try to login with `bob`:`ldap`,
@@ -70,7 +70,7 @@ the user fails to login with LDAP authN backend (RabbitMQ logs captured `LDAP bi
 succeeds with internal authN backend
 And RabbitMQ uses the internal AuthN backend, i.e. the one that authenticated the user, to perform further access control. The user gets granted *management* *user tag*. In other words, it uses the same backend for authN and authZ.
 If RabbitMQ would have used the first backend to perform AuthZ, the user would have got *admnistrator* *user tag*.
-RabbitMQ logs does not show LDAP requests to check *user tags* and *vhost* access. This probes that LDAP authZ is not used when the user is successfully authenticated by the internal AuthN. 
+RabbitMQ logs does not show LDAP requests to check *user tags* and *vhost* access. This probes that LDAP authZ is not used when the user is successfully authenticated by the internal AuthN.
 
 ### Scenario 2
 ```
