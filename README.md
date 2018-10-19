@@ -24,6 +24,7 @@ The aim of this repository is to address more scenarios in the future.
 - [Authentication and User tags](authentication-and-tags/README.md)
 - [Authentication, User tags and Vhosts](auth-tags-vhost/README.md)
 - [Authentication and Authorization (tags, vhosts, resources)](auth-and-authz/README.md)
+- [Users are organized in a hierarchical fashion (e.g. under different *Organizatinal Units*)](hierarchical-user-organization/README.md)
 - [Use multiple Authentication backends](multiple-auth-backends/README.md)
 
 ## Future Integration scenarios
