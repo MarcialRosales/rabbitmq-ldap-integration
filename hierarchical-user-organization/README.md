@@ -76,13 +76,16 @@ Putting all the pieces together,
 4. RabbitMQ binds with that DN, `cn=bob,ou=depart1,dc=example,dc=com`, and password `password`
 5. **OpenLDAP** accepts the bind operation and the user is successfully logged in by RabbitMQ
 
+Once the requirements are clear, let's implement the scenario.
+
+
 ## 1. Launch OpenLDAP
 
 Run `start.sh` script to launch **OpenLDAP**. It will kill the container we ran on the previous scenario and it will start a new one. This is so that we start with a clean LDAP database.
 
 ## 2. Set up LDAP entries
 
-Run the following command to create this LDAP structure shown in the diagram:
+Run the following command to create the LDAP structure shown in the diagram:
 
 ```
 ./import.sh
