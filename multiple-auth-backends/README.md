@@ -4,10 +4,26 @@ In the previous scenarios, we only used LDAP to authenticate users and authorize
 
 In this scenario, we are tasked to support the internal authentication backend in addition to LDAP. This is a common scenario found when we use [RabbitMQ for PCF](https://docs.pivotal.io/rabbitmq-cf/1-12/index.html). **RabbitMQ for PCF** creates an administrator user in RabbitMQ internal databases and it uses this user to create **vhosts**, **users** and assign permissions to those **users**. If we only configured **RabbitMQ for PCF** with just LDAP authentication backend, it would not be able to properly work anymore as it would not be able to perform the actions mentioned above.
 
-## 1. Configure RabbitMQ to authenticate users with our LDAP server else with RabbitMQ internal database
+Let's say we have this LDAP structure below. We have one organization unit for all the applications with DN `ou=apps,dc=example,dc=com`, and 3 applications under it. All 3 applications have `password` as their password.
 
-Edit your **rabbimq.config**, add the following configuration and restart RabbitMQ:
+```
+        dc=example, dc=com
+                |
+        +-------+---------+
+                          |
+                     ou=apps,
+                      dc=example,
+                      dc=com
+                          |
+              +-----------+------------+
+              |           |            |
+          cn=app100     cn=app101     cn=app102
+           ou=apps,       ou=apps,      ou=apps,
+           dc=example,    dc=example,   dc=example,
+           dc=com         dc=com        dc=com          
+```
 
+We configure RabbitMQ to first authenticate  with LDAP and fallback to the internal database.
 ```
 [
     {rabbit, [
@@ -15,37 +31,48 @@ Edit your **rabbimq.config**, add the following configuration and restart Rabbit
     ]},
     {rabbitmq_auth_backend_ldap, [
         {servers,               ["localhost"]},
-        {user_dn_pattern,       "cn=${username},ou=People,dc=example,dc=com"},
-        {other_bind,            {"cn=admin,dc=example,dc=com", "admin"}},
+        {user_dn_pattern,       "cn=${username},ou=apps,dc=example,dc=com"},
         {tag_queries, [
-            {administrator,     {in_group, "cn=administrator,ou=groups,dc=example,dc=com", "uniqueMember"}},
-            {monitoring,        {in_group, "cn=monitoring,ou=groups,dc=example,dc=com", "uniqueMember"}},
-            {management,        {constant, true}},
-            {policymaker,       {in_group, "cn=administrator,ou=${vhost},ou=env,dc=example,dc=com", "uniqueMember"}}
+            {administrator,     {constant, false}},
+            {management,        {constant, true}}            
         ]},
-        {vhost_access_query,    {in_group, "cn=users,ou=${vhost},ou=env,dc=example,dc=com", "uniqueMember"}},
-        {resource_access_query,
-            {'or', [
-                {for, [
-                    {permission, configure, {in_group, "cn=administrator,ou=${vhost},ou=env,dc=example,dc=com", "uniqueMember"}}
-                ]},
-                {for, [
-                    {resource, exchange, {match,
-                                             {string, "${name}"},
-                                             {string, "^${username}-x"}
-                    }},
-                    {resource, queue,    {match,
-                                             {string, "${name}"},
-                                             {string, "^${username}-q"}
-                    }}
-                ]},
-                {in_group, "cn=${name}-${permission},ou=${vhost},ou=env,dc=example,dc=com", "uniqueMember"}
-            ]}
-        },
         {log, network}
     ]}
 ].
 ```
+
+**Scenario 1 - `app100` authenticated and authorized by LDAP**
+1. `app100` tries to login using its password `password`
+2. RabbitMQ authenticates it with LDAP
+3. LDAP accepts it because there is an LDAP entry with DN = `cn=app100,ou=apps,dc=example,dc=com` and has the password `password`
+4. RabbitMQ checks with LDAP if the user has `administrator` *user tag*
+5. LDAP replies with `false`
+
+**Scenario 2 - `app100` exists in LDAP and internal but it is authenticated and authorized by LDAP**
+`app100` exists in LDAP and internal with the same password but it is only `administrator` in the internal backend.
+
+1. `app100` tries to login using its password `password`
+2. RabbitMQ authenticates it with LDAP
+3. LDAP accepts it because there is an LDAP entry with DN = `cn=app100,ou=apps,dc=example,dc=com` and has the password `password`
+4. RabbitMQ checks with LDAP if the user has `administrator` *user tag*
+5. LDAP replies with `false`
+6. RabbitMQ does not check with the internal backend.
+
+**TL;DR** RabbitMQ would only fallback to the internal when it cannot find the user in LDAP. But if the user is in LDAP, all the authorization request are done with LDAP. For instance, if the user does not have the `administrator` *user tag* in LDAP, RabbitMQ will not check with the internal.
+
+**Scenario 3 - `guest` authenticated and authorized by internal**
+`guest`:`guest` user exists in the internal database and it has the `administrator` *user tag*.
+
+1. `guest` tries to login  
+2. RabbitMQ authenticates it with LDAP
+3. LDAP does not recognize it
+4. RabbitMQ successfully authenticates it with internal backend
+5. RabbitMQ checks with internal backend that the user has `administrator` *user tag*
+  > RabbitMQ does not check with LDAP, it sticks to internal
+
+6. User gets granted `administrator` *user tag*
+
+**TL;DR** In order to fully centralize access control in LDAP, we need to make sure that all users defined in RabbitMQ internal database are also defined in LDAP. Should we failed to do it, authentication and authorization would be performed outside of LDAP radar.
 
 
 # Exploring all possible configurations with auth_backends
@@ -53,53 +80,42 @@ Edit your **rabbimq.config**, add the following configuration and restart Rabbit
 We are going to run all possible scenarios to fully understand how exactly we can configure `auth_backends` to support multiple AuthN and AuthZ backends.
 
 
-### Scenario 1
-Given this setup
-- `{auth_backends, [rabbit_auth_backend_ldap, rabbit_auth_backend_internal]}`
-- `bob`:`ldap` (user `bob` with password `ldap`) exists in LDAP backend and has the *administrator* *user tag*
-- `bob`:`internal` exists in the internal backend and has the *management* *user tag*
+### Scenario 1 - LDAP first, fallback internal
+`rabbitmq.config` is:
+```
+{auth_backends, [rabbit_auth_backend_ldap, rabbit_auth_backend_internal]}
+```
 
-When I try to login with `bob`:`ldap`,
-the user is successfully logged in with LDAP authN backend and
-RabbitMQ uses LDAP authZ backend to perform further access control.
-The user gets granted *admnistrator* *user tag*.
-RabbitMQ logs shows LDAP requests to check *user tags* and *vhost* access.
+We can read this configuration as follows: [`auth_backend_1`, `auth_backend_2`] where an `auth_backend` is responsible of both **authentication**, a.k.a. **AuthN** and **authorization**, a.k.a. **AuthZ**.
 
-When I try to login with `bob`:`internal`,
-the user fails to login with LDAP authN backend (RabbitMQ logs captured `LDAP bind returned "invalid credentials"`) but
-succeeds with internal authN backend
-And RabbitMQ uses the internal AuthN backend, i.e. the one that authenticated the user, to perform further access control. The user gets granted *management* *user tag*. In other words, it uses the same backend for authN and authZ.
-If RabbitMQ would have used the first backend to perform AuthZ, the user would have got *admnistrator* *user tag*.
-RabbitMQ logs does not show LDAP requests to check *user tags* and *vhost* access. This probes that LDAP authZ is not used when the user is successfully authenticated by the internal AuthN.
+We saw in the previous section the outcome of this configuration.
+- Users are first authenticated with **LDAP**
+- Users are authenticated with **internal** if **LDAP** fails to bind the user. It could be that the user does not exist or that its password does not match. It could be either case.
+- If the user is authenticated with **LDAP**, RabbitMQ uses **LDAP** to resolve all the authorization requests (i.e. *vhosts*, *user tags*, etc). It is important to understand that there is no fallback concept for authorization requests. Should LDAP returned `false` to an authorization request like `tag_query.administrator`, RabbitMQ will not check with the next backend.
+- If the user is authenticated with **internal**, RabbitMQ uses **internal** to resolve all the authorization requests. It will not check first with **LDAP**.
 
-### Scenario 2
+### Scenario 2 - AuthN with LDAP, AuthZ with internal
+`rabbitmq.config` is:
 ```
 {auth_backends, [{rabbit_auth_backend_ldap, rabbit_auth_backend_internal}]}
 ```
 
-### Scenario 2
+We can read this configuration as follows: [ {`authN_backend_1`, `authZ_backend_1`} ]. There is just one authN backend and one authZ backend, but they be of different type.
+
+- Users are ONLY authenticated with **LDAP**
+- Users are ONLY authorized with **internal**
+
+### Scenario 3 - LDAP AuthN first but AuthZ with internal. Fallback LDAP AuthN to internal, and AuthZ with internal.
 ```
-{auth_backends, [{rabbit_auth_backend_ldap, rabbit_auth_backend_internal}, {rabbit_auth_backend_internal}]}
+{auth_backends, [
+    {rabbit_auth_backend_ldap, rabbit_auth_backend_internal},
+    {rabbit_auth_backend_internal}]}
 ```
 
+We can read this configuration as follows: [ {`authN_backend_1`, `authZ_backend_1`}, { `auth_backend_2`} ]. `auth_backend_2` is the fallback to `authN_backend_1`.
 
-Given this setup
-- `{auth_backends, [rabbit_auth_backend_ldap, rabbit_auth_backend_internal]}`
-- `bob`:`ldap` exists in LDAP backend and has the *administrator* *user tag*
-- `bob`:`internal` exists in the internal backend and has the *management* *user tag*
-
-
-
-However with this other setup
-- `{auth_backends, [{rabbit_auth_backend_ldap, rabbit_auth_backend_internal}, {rabbit_auth_backend_ldap, rabbit_auth_backend_internal}]} `
-- and same users
-
-When I try to login with `bob`:`internal`,
-the user is fails to login with LDAP authN and i am not sure if it has logged in with the internal authN backend because
-I don't see any LDAP authZ requests in the logs.
-
-
-
-I thought RabbitMQ would go again to the list of auth_backends, starting with the first one, in order to perform the authorization.
-
- `{auth_backends, [rabbit_auth_backend_ldap, rabbit_auth_backend_internal]}`
+- Users are first authenticated with **LDAP**
+- If **LDAP** does not accept it, Users are then authenticated with **internal**. Authorization is also performed by **internal** too.
+- If **LDAP** accepts it, Users are then authorized with **internal**.
+- This configuration implies that all users must be defined in **internal** because access control is done by **internal**. However, we dont need to have all users's passwords in **internal**, they can be defined in **LDAP** if required. Else, the password will also be defined in **internal**.
+  
