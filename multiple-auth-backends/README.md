@@ -41,34 +41,37 @@ We configure RabbitMQ to first authenticate  with LDAP and fallback to the inter
 ].
 ```
 
-**Scenario 1 - `app100` authenticated and authorized by LDAP**
-1. `app100` tries to login using its password `password`
-2. RabbitMQ authenticates it with LDAP
-3. LDAP accepts it because there is an LDAP entry with DN = `cn=app100,ou=apps,dc=example,dc=com` and has the password `password`
-4. RabbitMQ checks with LDAP if the user has `administrator` *user tag*
-5. LDAP replies with `false`
+**Scenario 1 - `app100` user only exists in LDAP**
 
-**Scenario 2 - `app100` exists in LDAP and internal but it is authenticated and authorized by LDAP**
-`app100` exists in LDAP and internal with the same password but it is only `administrator` in the internal backend.
+1. `app100` tries to login with RabbitMQ
+2. RabbitMQ authenticates it with **LDAP**
+3. **LDAP** accepts it because there is an LDAP entry with DN = `cn=app100,ou=apps,dc=example,dc=com` and has the password `password`
+4. RabbitMQ checks with **LDAP** if the user has `administrator` *user tag*
+5. **LDAP** replies with `false`
 
-1. `app100` tries to login using its password `password`
-2. RabbitMQ authenticates it with LDAP
-3. LDAP accepts it because there is an LDAP entry with DN = `cn=app100,ou=apps,dc=example,dc=com` and has the password `password`
-4. RabbitMQ checks with LDAP if the user has `administrator` *user tag*
-5. LDAP replies with `false`
-6. RabbitMQ does not check with the internal backend.
+**Scenario 2 - `app100` user exists in LDAP and internal**
 
-**TL;DR** RabbitMQ would only fallback to the internal when it cannot find the user in LDAP. But if the user is in LDAP, all the authorization request are done with LDAP. For instance, if the user does not have the `administrator` *user tag* in LDAP, RabbitMQ will not check with the internal.
+`app100` exists in LDAP and internal with the same password. It has `administrator` *user tag* in the internal backend and `management` *user tag* in LDAP.
 
-**Scenario 3 - `guest` authenticated and authorized by internal**
-`guest`:`guest` user exists in the internal database and it has the `administrator` *user tag*.
+1. `app100` tries to login with RabbitMQ
+2. RabbitMQ authenticates it with **LDAP**
+3. **LDAP** accepts it because there is an LDAP entry with DN = `cn=app100,ou=apps,dc=example,dc=com` and has the password `password`
+4. RabbitMQ checks with **LDAP** if the user has `administrator` *user tag*
+5. **LDAP** replies with `false`
+6. RabbitMQ does not check with the **internal** backend. It stops here.
 
-1. `guest` tries to login  
-2. RabbitMQ authenticates it with LDAP
-3. LDAP does not recognize it
-4. RabbitMQ successfully authenticates it with internal backend
-5. RabbitMQ checks with internal backend that the user has `administrator` *user tag*
-  > RabbitMQ does not check with LDAP, it sticks to internal
+**TL;DR** RabbitMQ would only fallback to the internal when it cannot find the user in LDAP. But if the user is in LDAP, all the authorization request are done with LDAP.
+
+**Scenario 3 - `guest` user only exists in internal**
+
+`guest` user exists in the internal database and it has the `administrator` *user tag*. However, all users in LDAP are not configured with `administrator` *user tag*.
+
+1. `guest` tries to login with RabbitMQ
+2. RabbitMQ tries to authenticate it with **LDAP**
+3. **LDAP** does not recognize it
+4. RabbitMQ successfully authenticates it with **internal** backend
+5. RabbitMQ checks with **internal** backend that the user has `administrator` *user tag*
+  > RabbitMQ does not check with **LDAP**, it sticks to **internal**
 
 6. User gets granted `administrator` *user tag*
 
@@ -118,4 +121,3 @@ We can read this configuration as follows: [ {`authN_backend_1`, `authZ_backend_
 - If **LDAP** does not accept it, Users are then authenticated with **internal**. Authorization is also performed by **internal** too.
 - If **LDAP** accepts it, Users are then authorized with **internal**.
 - This configuration implies that all users must be defined in **internal** because access control is done by **internal**. However, we dont need to have all users's passwords in **internal**, they can be defined in **LDAP** if required. Else, the password will also be defined in **internal**.
-  
