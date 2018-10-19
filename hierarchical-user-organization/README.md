@@ -71,7 +71,7 @@ This new lookup mechanism has the following two prerequisites:
 Putting all the pieces together,
 1. `bob@example.com` attempts to login to RabbitMQ with password `password`
 2. RabbitMQ searches for an LDAP entry with `mail` attribute equal to the username, `bob@example.com`, starting the search from `dc=example,dc=com` and retrieve its DN.
-  > We will see later on that RabbitMQ binds to **OpenLDAP** with a different user, not with `bob@example.com`
+  > We will see later on that in order to do the search operation RabbitMQ binds to **OpenLDAP** with a different user, not with `bob@example.com`
 3. RabbitMQ gets back `cn=bob,ou=depart1,dc=example,dc=com` from LDAP
 4. RabbitMQ binds with that DN, `cn=bob,ou=depart1,dc=example,dc=com`, and password `password`
 5. **OpenLDAP** accepts the bind operation and the user is successfully logged in by RabbitMQ
