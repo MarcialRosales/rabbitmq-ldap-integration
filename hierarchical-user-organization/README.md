@@ -68,7 +68,13 @@ This new lookup mechanism has the following two prerequisites:
 1. All users in LDAP must have the same LDAP attribute. In our scenario, we are going to use the `mail` attribute because all our users have the *ObjectClass* `inetOrgPerson` which defines the `mail` attribute. Later on we will see how we configure RabbitMQ to use this `mail` attribute
 2. All users must have a *common base DN*. This is the *base DN* that RabbitMQ will use to search for the user's LDAP entry. In our example, the base DN is `dc=example,dc=com`.
 
-Putting all the pieces together, in order to authenticate a user RabbitMQ first searches for an LDAP entry where the `dn_lookup_attribute` matches the username used by the RabbitMQ client to login. Once it finds the LDAP entry, it retrieves its DN and it binds using the user's DN and password.
+Putting all the pieces together,
+1. `bob@example.com` attempts to login to RabbitMQ with password `password`
+2. RabbitMQ searches for an LDAP entry with `mail` attribute equal to the username, `bob@example.com`, starting the search from `dc=example,dc=com` and retrieve its DN.
+  > We will see later on that RabbitMQ binds to **OpenLDAP** with a different user, not with `bob@example.com`
+3. RabbitMQ gets back `cn=bob,ou=depart1,dc=example,dc=com` from LDAP
+4. RabbitMQ binds with that DN, `cn=bob,ou=depart1,dc=example,dc=com`, and password `password`
+5. **OpenLDAP** accepts the bind operation and the user is successfully logged in by RabbitMQ
 
 ## 1. Launch OpenLDAP
 
