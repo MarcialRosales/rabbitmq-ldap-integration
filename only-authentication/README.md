@@ -4,15 +4,15 @@ In this scenario we will configure RabbitMQ so that users are authenticated agai
 
 In this scenario, we are not going to configure authorization, i.e. users will be allowed to access any resource on any vhost.
 
-No users will have the `administrator` tag but all users will have the `management` tag. This is the role required to access the management plugin (console and/or api).
+No users will have the `administrator` *user tag* but all users will have the `management` tag. This is the role required to access the management plugin (console and/or api).
 
 ## 1. Set up OpenLDAP
 
-Run `start.sh` script to launch **OpenLDAP**. It will run with just one root DN and one user. See details below:
+To run this scenario, we are going to jump onto the `only-authentication` folder. From this folder, we run **OpenLDAP** Within `only-authentication` folder, run `start.sh` script to launch **OpenLDAP**. It will run with just one root DN and one user. See details below:
   - Root DN: `dc=example,dc=com`
   - Default user's distinguish name `cn=admin,dc=example,dc=com` and password `admin`.
 
-Copy `../.ldaprc` to your home directory. This file provides default values to the *LDAP* commands we will run later on otherwise we would need to pass the credentials to our LDAP server on every command.
+Preferably copy `../.ldaprc` file to your home directory. This file provides default values to the *LDAP* commands we will run later on otherwise we would need to pass the credentials to our LDAP server on every command.
 
 To verify **OpenLDAP** is running, run the following command:
 
@@ -150,7 +150,21 @@ dn: cn=bill,ou=People,dc=example,dc=com
 
 ### 4. Configure RabbitMQ to authenticate users with our LDAP server
 
-Edit the `/etc/rabbitmq/rabbitmq.config` file, add the following configuration and restart RabbitMQ:
+Before we jump onto the RabbitMQ configuration we should clarify an important term used in LDAP which is [binding](https://ldap.com/the-ldap-bind-operation/).
+When we open a connection to an LDAP server we are in an *anonymous* connection state. What this exactly means is defined by the server implementation, not by the protocol.
+
+The bind operation is used to authenticate clients like `ldapsearch` or `ldapadd` before they can access the directory's content. There are different kinds of bind operations. [Anonymous](https://ldapwiki.com/wiki/Anonymous%20bind) and *simple bind* are among the most commonly known.
+
+All the commands we invoked earlier, to search for entries or to import them, used the *simple bind* which consists on passing the username in the form of a *Distinguished name*  and a password (`-w admin`). We configured the *DN* in the `../.ldaprc` file, see below the setting `BINDDN`:
+```
+BASE    dc=example,dc=com
+URI     ldap://
+BINDDN  cn=admin,dc=example,dc=com
+```
+
+Coming back to RabbitMQ configuration, we will also use the *simple binding* which means we will need a *DN* for the RabbitMQ user and a password.
+
+Let's edit the `/etc/rabbitmq/rabbitmq.config` file, add the following configuration and restart RabbitMQ:
 
 ```
 [
@@ -169,17 +183,17 @@ Edit the `/etc/rabbitmq/rabbitmq.config` file, add the following configuration a
 ].
 ```
 
-This same configuration is available in the file `rabbitmq.config` should you want to copy files.
+This same configuration is available in the file [rabbitmq.config](only-authentication/rabbitmq.config) should you want to copy files.
 
 **Configuration explained**:
 
 - Users are only defined in LDAP. In other words, the internal RabbitMQ database is not used.
-- No users have access as `administrator` to the management plugin
+- Users will login onto RabbitMQ using a plain **username**. We need to map this plain name onto a distinguished name that exists in LDAP.
+  To configure this mapping we add the following entry to the configuration: `{user_dn_pattern, "cn=${username},ou=People,dc=example,dc=com"},`
+- What is exactly RabbitMQ doing during the authentication process? It is doing a **bind** Request with `-D "cn=joe,ou=People,dc=example,dc=com"` and password `-w password"` (this is the password we pass to RabbitMQ either via the **http** or **amqp** protocols).  If the DN specified in `-D` argument matches with an LDAP entry of type `objectClass: simpleSecurityObject` and the `userPassword` attribute of that entry also matches with the password passed to Rabbit the authentication is accepted.
+- No users have access as `administrator` to the management plugin.
 - All users have access as `management` to the management plugin
   To test the management access, run `curl -u john:password http://localhost:15672/api/overview | jq .` to validate it
 - All users have access to any vhost
   To test **amqp** access, run `bin/runjava com.rabbitmq.perf.PerfTest --uri amqp://john:password@localhost:5672/%2F`
 - Users must be declared in LDAP under the **organizational Unit** `ou=People,dc=example,dc=com`.
-- Users will login onto RabbitMQ using a plain **username**. We need to map this plain name onto a distinguished name that corresponds to the same user.
-  To configure this mapping we add the following entry to the configuration: `{user_dn_pattern, "cn=${username},ou=People,dc=example,dc=com"},`
-- What is exactly RabbitMQ doing during the authentication process? It is doing a **bind** Request with `-D "cn=joe,ou=People,dc=example,dc=com"` and password `-w password"` (this is the password we pass to RabbitMQ either via the **http** or **amqp** protocols).  If the DN specified in `-D` argument matches with an LDAP entry of type `objectClass: simpleSecurityObject` and the `userPassword` attribute of that entry also matches with the password passed to Rabbit the authentication is accepted.
