@@ -28,7 +28,7 @@ The aim of this repository is to address more scenarios in the future.
 - [Users are organized in a hierarchical fashion (e.g. under different *Organizatinal Units*)](hierarchical-user-organization/README.md)
 - [Use multiple Authentication backends](multiple-auth-backends/README.md)
 - [Cache Authentication and Authorization backend results](cache-auth-results/README.md)
-- [Retrieve RabbitMQ's client identify from the client's certificate](tls-identify/README.md)
+- [Retrieve RabbitMQ's client identify from the client's certificate](tls-identity/README.md)
 
 ## Future Integration scenarios
 
