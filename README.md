@@ -41,7 +41,11 @@ With external authz backends like the LDAP one we highly recommend using https:/
 
 ## Properly configure LDAP timeouts
 
-Make sure the connection timeouts in your LDAP server are larger than your configured timeout (auth_ldap.timeout) otherwise your LDAP server may terminate the connection and the ldap plugin may fail to operate afterwards.
+Make sure the connection timeouts in your LDAP server are larger than your configured timeout (`auth_ldap.timeout`) otherwise your LDAP server may terminate the connection and the ldap plugin may fail to operate afterwards.
+
+## Cache LDAP connection to avoid excessive connection churn
+
+LDAP server connections are pooled to avoid excessive connection churn and LDAP server load. By default the pool has up to 64 connections. This can be controlled using the `auth_ldap.connection_pool_size `. Pooled connections without activity are closed after a period of time configurable via `auth_ldap.idle_timeout` which by default it is set to `300000` msec.
 
 ## Monitor log file to detect when RabbitMQ lost connection with LDAP server
 
