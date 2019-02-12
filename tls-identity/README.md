@@ -17,7 +17,7 @@ We disable `PLAIN` and `AMQPLAIN` auth mechanisms and enable only `EXTERNAL`.
 
 **Deployment scenario - Except management users, everyone else uses SSL Certificates**
 
-In this scenario, we must issue an SSL certificate to the applications but not necessarily to every end user. This means that if we enable http and https, those users who have an SSL certificate will be identify themselves via their certificate else via their *username/password*. Therefore, we need to keep the default auth mechanisms and additionally enable the `EXTERNAL` one.
+In this scenario, we must issue an SSL certificate to the applications but not necessarily to every end user. This means that if we enable http, those users will authenticate with their *username/password*. If we enable https, the users will authenticate with their certificate. If we want to support both cases, we need to keep the default auth mechanisms and additionally enable the `EXTERNAL` one.
 
 ```
 [
