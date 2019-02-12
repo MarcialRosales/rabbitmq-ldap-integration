@@ -14,6 +14,7 @@ The aim of this repository is to address more scenarios in the future.
 
 - RabbitMQ is running locally (localhost:5672 and localhost:15672)
 - Docker is installed. We will use Docker to run **OpenLDAP**
+- `ldap` tools are installed such as `ldapsearch` and/or `ldapadd`.
 - Ruby is installed. We will use it to run some AMQP clients.
 - Python is installed. We will use it to run [rabbitmqadmin](https://www.rabbitmq.com/management-cli.html)
 - `rabbitadmin` is installed.  Go to [http://localhost:15672/cli/rabbitmqadmin](http://localhost:15672/cli/rabbitmqadmin]), copy the downloaded file to your preferred location in your `PATH`
@@ -26,6 +27,7 @@ The aim of this repository is to address more scenarios in the future.
 - [Authentication and Authorization (tags, vhosts, resources)](auth-and-authz/README.md)
 - [Users are organized in a hierarchical fashion (e.g. under different *Organizatinal Units*)](hierarchical-user-organization/README.md)
 - [Use multiple Authentication backends](multiple-auth-backends/README.md)
+- [Cache Authentication and Authorization backend results](cache-auth-results/README.md)
 
 ## Future Integration scenarios
 
@@ -38,6 +40,8 @@ In addition to all the recommendations done in the [RabbitMQ LDAP documentation]
 ## Use rabbitmq-auth-backend-cache
 
 With external authz backends like the LDAP one we highly recommend using https://github.com/rabbitmq/rabbitmq-auth-backend-cache in production because under load RabbitMQ is known to hammer LDAP servers hard enough with queries that they can't keep up.
+
+Check out the scenario [Cache Authentication and Authorization backend results](cache-auth-results/README.md).
 
 ## Properly configure LDAP timeouts
 
