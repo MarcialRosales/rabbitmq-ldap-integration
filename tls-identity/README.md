@@ -1,6 +1,6 @@
-# Retrieve RabbitMQ's client identify from the client's certificate
+# Retrieve RabbitMQ's client identity from the client's certificate
 
-First of all, why do we need to use mutual SSL authentication rather than username/password? It is actually a matter of preference. We may find environments where end users and internal applications use username/password to access the management ui and amqp/s respectively. Whereas external applications authenticate themselves using their SSL certificate. Furthermore, in some environments, all applications must access via AMQPS and use their SSL certificate to authenticate.
+First of all, why do we need to use mutual SSL authentication rather than username/password? It is actually a matter of preference. We may find environments where end users and internal applications use username/password to access the management ui and amqp/s protocol respectively. Whereas external applications authenticate themselves using their SSL certificate. In the contrary, we may find other environments where every application must access via AMQPS and use their SSL certificate to authenticate.
 
 **Deployment scenario - Everyone uses SSL certificates**
 
