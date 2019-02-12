@@ -185,6 +185,11 @@ Let's edit the `/etc/rabbitmq/rabbitmq.config` file, add the following configura
 
 This same configuration is available in the file [rabbitmq.config](only-authentication/rabbitmq.config) should you want to copy files.
 
+Edit your `/etc/rabbitmq/enabled_plugins`, add `rabbitmq_auth_backend_cache` to the list:
+```
+[rabbitmq_auth_backend_ldap,rabbitmq_management,rabbitmq_management_agent].
+```
+
 **Configuration explained**:
 
 - Users are only defined in LDAP. In other words, the internal RabbitMQ database is not used.
