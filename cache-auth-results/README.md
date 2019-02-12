@@ -68,4 +68,4 @@ Edit your `/etc/rabbitmq/enabled_plugins`, add `rabbitmq_auth_backend_cache` to 
   ```
 2. Make sure that RabbitMQ is actually caching authz results.
 
-  First, open the following [link](http://localhost:15672/#/login/bob%40example/password) in your browser. And then tail the rabbitmq logs (`tail -f /usr/local/var/log/rabbitmq/rabbit@localhost.log`) and make sure that you only see statements like this one `LDAP CHECK: login for bob@example.com` every minute and not every 5 seconds which is the default refresh frequency of the RabbitMQ management ui.  
+  First, open the following [link](http://localhost:15672/#/login/bob%40example.com/password) in your browser. And then tail the rabbitmq logs (`tail -f /usr/local/var/log/rabbitmq/rabbit@localhost.log`) and make sure that you only see statements like this one `LDAP CHECK: login for bob@example.com` every minute and not every 5 seconds which is the default refresh frequency of the RabbitMQ management ui.  
