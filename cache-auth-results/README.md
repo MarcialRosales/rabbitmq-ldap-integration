@@ -1,6 +1,6 @@
 # Cache Authentication and Authorization backend results
 
-The scenarios we have seen so far such as [Hierarchical user organization](../hierarchical-user-organization/README.md) resolves every auth/z request with the configured backends. If the backends are external like LDAP, it is highly recommended to cache the results specially in production environments because under load RabbitMQ is known to hammer LDAP servers hard enough with queries that they can't keep up.
+The scenarios we have seen so far such as [Hierarchical user organization](../hierarchical-user-organization/README.md) resolves every auth/z request with the configured backends. If the backends are external like LDAP, it is highly recommended to cache the results specially in production environments. Under load RabbitMQ is known to hammer LDAP servers hard enough with queries that they can't keep up.
 
 ## 1. Launch OpenLDAP
 
@@ -54,18 +54,18 @@ Edit your `/etc/rabbitmq/enabled_plugins`, add `rabbitmq_auth_backend_cache` to 
 
 **Configuration explained**:
 - `rabbit_auth_backend_cache` should be the only configured `auth_backends` under `rabbit`
-- We add a new configuration entry called `rabbitmq_auth_backend_cache`, which configures under the attribute `cached_backend` the *auth backends* we had previously configured under `rabbit.auth_backends`. In our case, it is just LDAP backend.
-- We can configure the TTL for cached authz results, by using `cache_ttl` in milliseconds.
+- We add a new configuration entry called `rabbitmq_auth_backend_cache`, which configures under the attribute `cached_backend` the *auth backends* we had previously configured under `rabbit.auth_backends`. In our case, it is just `rabbit_auth_backend_ldap` backend
+- We can configure the TTL for cached authz results, by using `cache_ttl` in milliseconds
 
-> It is possible to configure the cache implementation module. However, in this guide we won't get to that. You can get more information [here](https://github.com/rabbitmq/rabbitmq-auth-backend-cache#cache-configuration).
+> It is possible to configure the cache implementation module, i.e. the internal data structure. However, in this guide we won't get to that. You can get more information [here](https://github.com/rabbitmq/rabbitmq-auth-backend-cache#cache-configuration).
 
 
 ### 4. Verify Configuration
 
-1. Make sure that `bob` can access the Management API using its email address `bob@example.com`
+1. Make sure that `bob` can still access the Management API using its email address `bob@example.com`
   ```
   curl -u bob@example.com:password http://localhost:15672/api/overview | jq .
   ```
 2. Make sure that RabbitMQ is actually caching authz results.
 
-  First, open the following [link](https://localhost:15672/#/login/bob%40example/password) in your browser. And next tail the rabbitmq logs (`tail -f /usr/local/var/log/rabbitmq/rabbit@localhost.log`) and make sure that you only see statements like this one `LDAP CHECK: login for bob@example.com` every minute and not every 5 seconds which is the default refresh frequency of the RabbitMQ management ui.  
+  First, open the following [link](http://localhost:15672/#/login/bob%40example/password) in your browser. And then tail the rabbitmq logs (`tail -f /usr/local/var/log/rabbitmq/rabbit@localhost.log`) and make sure that you only see statements like this one `LDAP CHECK: login for bob@example.com` every minute and not every 5 seconds which is the default refresh frequency of the RabbitMQ management ui.  
