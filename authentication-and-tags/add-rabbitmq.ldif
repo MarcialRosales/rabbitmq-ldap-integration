@@ -1,0 +1,4 @@
+dn: cn=rabbitmq,dc=example,dc=com
+objectClass: simpleSecurityObject
+objectClass: organizationalRole
+userPassword: {SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g=
