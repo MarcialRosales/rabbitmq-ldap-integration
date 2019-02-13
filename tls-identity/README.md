@@ -1,12 +1,17 @@
 # Retrieve RabbitMQ's client identity from the client's certificate
 
-First of all, why do we need to use mutual SSL authentication rather than username/password? It is actually a matter of preference. We may find environments where end users and internal applications use username/password to access the management ui and amqp/s protocol respectively. Whereas external applications authenticate themselves using their SSL certificate. In the contrary, we may find other environments where every application must access via AMQPS and use their SSL certificate to authenticate.
+In this scenario, we are going to demonstrate how RabbitMQ clients can use their SSL certificate to authenticate (without *password*) rather than using *username/password*.
+
+In order to RabbitMQ clients authenticate with their SSL certificates, they must connect over AMQPS. And the RabbitMQ server must enable AMQPS and configured to verify the client/peer SSL certificate. This is also known as mutual TLS authentication.
+
+RabbitMQ clients no longer need a password just an SSL Certificate and RabbitMQ would extract the username from the SSL Certificate. More concretely, RabbitMQ will extract the username from the certificate's *Subject* field.
 
 **Deployment scenario - Everyone uses SSL certificates**
 
+We may find environments where end users and applications must have a valid SSL certificate in order to access RabbitMQ.
 In this scenario, we must issue an SSL certificate to everyone, that is, end users and applications. *username/password* authentication mechanism is no longer supported.
 
-We disable `PLAIN` and `AMQPLAIN` auth mechanisms and enable only `EXTERNAL`.
+In this scenario, we disable `PLAIN` and `AMQPLAIN` *auth mechanisms* and enable only `EXTERNAL`.
 ```
 [
   {rabbit, [
@@ -17,7 +22,9 @@ We disable `PLAIN` and `AMQPLAIN` auth mechanisms and enable only `EXTERNAL`.
 
 **Deployment scenario - Except management users, everyone else uses SSL Certificates**
 
-In this scenario, we must issue an SSL certificate to the applications but not necessarily to every end user. This means that if we enable http, those users will authenticate with their *username/password*. If we enable https, the users will authenticate with their certificate. If we want to support both cases, we need to keep the default auth mechanisms and additionally enable the `EXTERNAL` one.
+In the contrary, we may find environments where end users and internal applications use username/password to access the management ui and amqp protocol respectively. Whereas external applications authenticate themselves using their SSL certificate over amqps protocol.
+
+In this scenario, we need to support both *auth mechanism*, i.e. `PLAIN` for *username/password* and `EXTERNAL` for SSL Certificates.
 
 ```
 [
@@ -27,17 +34,19 @@ In this scenario, we must issue an SSL certificate to the applications but not n
 ].
 ```
 
-There are two options on how RabbitMQ can extract the username from the client's certificate:
-- One way is to use the *distinguished name* found in the Certificate's *Subject* field
-- The other is to extract the *common name* (`CN`) from the Certificate's *Subject* field
-
-
 ## Deployment scenario to set up
 
+To demonstrate how to use SSL Certificates as *auth mechanism* we are going to use the following combined deployment scenario:
 - End users coming over http onto the Management UI must authenticate using *username/password* (i.e. `PLAIN` auth mechanism)
 - Clients coming over AMQP are authenticated using *username/password*
 - Clients coming over AMQPS are authenticated using *certificates* (i.e. `EXTERNAL` auth mechanism)
 
+
+
+
+There are two options on how RabbitMQ can extract the username from the client's certificate:
+- One way is to use the *distinguished name* found in the Certificate's *Subject* field
+- The other is to extract the *common name* (`CN`) from the Certificate's *Subject* field
 
 
 ## Authenticating Cloud Foundry Application using SSL Certificates
