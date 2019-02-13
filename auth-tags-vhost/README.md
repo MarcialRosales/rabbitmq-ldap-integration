@@ -14,7 +14,7 @@ From the [docs](http://www.rabbitmq.com/access-control.html#permissions):
 
 ## 1. Launch OpenLDAP
 
-Run `start.sh` script to launch **OpenLDAP**. It will kill the container we ran on the previous scenario and it will start a new one. This is so that we start with a clean LDAP database.
+From within `auth-tags-vhost` folder, run `start.sh` script to launch **OpenLDAP**. It will kill the container we ran on the previous scenario and it will start a new one. This is so that we start with a clean LDAP database.
 
 ## 2. Set up LDAP entries
 
@@ -47,15 +47,13 @@ cn=app100,..                 cn=app200,...
 Run the following command to create this structure:   
 
 ```
-./import.sh
+./auth-tags-vhost/import.sh
 ```
 
 Run the following command to create the vhosts:  
 
-
-
 ```
-./create-vhosts.sh
+./auth-tags-vhost/create-vhosts.sh
 ```
 
 Vhosts must exist in RabbitMQ whereas users and their permissions don't because they are defined in LDAP.
@@ -84,7 +82,7 @@ Edit your `rabbimq.config`, add the following configuration and restart RabbitMQ
 ].
 ```
 
-This same configuration is available in the file `rabbitmq.config` should you want to copy files.
+This same configuration is available in the file [rabbitmq.config](rabbitmq.config) should you want to copy files.
 
 **Configuration explained**:
 
@@ -114,4 +112,3 @@ This same configuration is available in the file `rabbitmq.config` should you wa
     ```
     {"error":"not_authorised","reason":"Not management user"}
     ```
-
