@@ -8,7 +8,7 @@ No users will have the `administrator` *user tag* but all users will have the `m
 
 ## 1. Set up OpenLDAP
 
-To run this scenario, we are going to jump onto the `only-authentication` folder. From this folder, we run **OpenLDAP** Within `only-authentication` folder, run `start.sh` script to launch **OpenLDAP**. It will run with just one root DN and one user. See details below:
+From within the `only-authentication` folder, run `start.sh` script to launch **OpenLDAP**. It will run with just one root DN and one user. See details below:
   - Root DN: `dc=example,dc=com`
   - Default user's distinguish name `cn=admin,dc=example,dc=com` and password `admin`.
 
@@ -110,7 +110,7 @@ This is the LDAP organization we are aiming for:
 Run the following command to create this structure:
 
 ```
-./import.sh
+./only-authentication/import.sh
 ```
 
 `import.ldif` follows LDAP format to define the objects we want to create.
@@ -183,7 +183,7 @@ Let's edit the `/etc/rabbitmq/rabbitmq.config` file, add the following configura
 ].
 ```
 
-This same configuration is available in the file [rabbitmq.config](only-authentication/rabbitmq.config) should you want to copy files.
+This same configuration is available in the file [rabbitmq.config](rabbitmq.config) should you want to copy files.
 
 Edit your `/etc/rabbitmq/enabled_plugins`, add `rabbitmq_auth_backend_cache` to the list:
 ```
