@@ -41,13 +41,24 @@ To demonstrate how to use SSL Certificates as *auth mechanism* we are going to u
 - Clients coming over AMQP are authenticated using *username/password*
 - Clients coming over AMQPS are authenticated using *certificates* (i.e. `EXTERNAL` auth mechanism)
 
-
+**Important consideration when using SSL Certificates, or password-less auth mechanism, to auth/z with LDAP**:
+- We cannot use the user's credentials to bind to the LDAP server, either for authentication and/or authorization requests. This is because to bind to an LDAP server using *simple bind* mechanism, we need to provide the user's DN and a *password*. When we authenticate using an SSL Certificate we do not have a password.
+- The [first](../only-authentication/README.md) and [second](../authentication-and-tags/README.md) scenarios used the user credentials (user's DN obtained from the username and password) to bind to LDAP for authentication purposes.
+- Whereas all the rest of the scenarios, we configured RabbitMQ to use the `admin` user in LDAP to bind for authentication and authorization purposes. This was done via configuration entry `{other_bind,            {"cn=admin,dc=example,dc=com", "admin"}},`
 
 
 There are two options on how RabbitMQ can extract the username from the client's certificate:
 - One way is to use the *distinguished name* found in the Certificate's *Subject* field
 - The other is to extract the *common name* (`CN`) from the Certificate's *Subject* field
 
+
+Work in progress:
+- Generate self-signed CA certificate
+- Generate PrivateKey+Certificate for rabbitmq server issued by the self-signed CA
+- Generate PrivateKey+Certificate for rabbitmq user issued by the self-signed CA
+- Configure RabbitMQ Server with SSL/TLS + auth-ssl plugin
+- Configure RabbitMQ client with its certificate
+- Test configuration 
 
 ## Authenticating Cloud Foundry Application using SSL Certificates
 Starting in [PCF 1.12](https://docs.pivotal.io/pivotalcf/1-12/installing/highlights.html#app-identity), the [Pivotal Application Service](https://pivotal.io/platform/pivotal-application-service) tile issues a unique certificate for each running app instance. The certificate is valid for only 24 hours. See a sample certificate below:
