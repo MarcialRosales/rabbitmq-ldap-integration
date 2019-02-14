@@ -4,7 +4,7 @@ We are going to explore how we can we use a single LDAP server to authenticate R
 
 **LDAP entries for all RabbitMQ users/clients are defined under a single organizational unit independent of the RabbitMQ cluster they belong to**
 
-One direction is where all RabbitMQ users/clients are defined under a single organizational unit indistinctly of the RabbitMQ cluster. This direction is further explored in the [Topology 1](#topology_1) section.
+One direction is where all RabbitMQ users/clients are defined under a single organizational unit indistinctly of the RabbitMQ cluster. This direction is further explored in the [Topology 1](#topology-1) section.
 
 **Advantages**:
 - We can easily grant a RabbitMQ client/user (e.g. `cn=joe,ou=users,dc=example,dc=com`) access to multiple RabbitMQ Clusters
@@ -18,7 +18,7 @@ One direction is where all RabbitMQ users/clients are defined under a single org
 This is the second direction of our exploration of LDAP with multiple RabbitMQ Clusters. Here, RabbitMQ users belong to a single RabbitMQ cluster.
 
 **Advantages**:
-- Easy to reason about from a security standpoint. To know who is entitled to access a RabbitMQ cluster, indistinctly of the *vhost* they can access, we only need to look at what LDAP entries exists under an LDAP directory, e.g. To know which users can access the cluster `odb-cluster1` we only need to look at what LDAP entries exists under `ou=odb-cluster1,ou=clusters,dc=example,dc=com`. This is the LDAP entry associated to the `odb-cluster1` RabbitMQ Cluster. See [LDAP Organization for Topology 2](#topology_2) for more details.
+- Easy to reason about from a security standpoint. To know who is entitled to access a RabbitMQ cluster, indistinctly of the *vhost* they can access, we only need to look at what LDAP entries exists under an LDAP directory, e.g. To know which users can access the cluster `odb-cluster1` we only need to look at what LDAP entries exists under `ou=odb-cluster1,ou=clusters,dc=example,dc=com`. This is the LDAP entry associated to the `odb-cluster1` RabbitMQ Cluster. See [LDAP Organization for Topology 2](#topology-2) for more details.
 
 **Disadvantages**:
 - We would have to duplicate the RabbitMQ client/user's LDAP entry if we want to grant access to multiple RabbitMQ clusters.
@@ -27,7 +27,7 @@ This is the second direction of our exploration of LDAP with multiple RabbitMQ C
 
 ## Topology 1
 
-Users are defined in LDAP indistinctly of which cluster they are entitled to access and we use group membership to configure which users are allowed to access which RabbitMQ cluster.
+Users are defined in LDAP indistinctly of which cluster they are entitled to access and we use group membership to configure which users are allowed to access which RabbitMQ cluster & *vhost*.
 
 ### RabbitMQ topology
 
@@ -70,7 +70,7 @@ This is a sample LDAP organization to match the topology:
                                     ou=clusters,       
                                     dc=example,
                                     dc=com
-                                    ===========
+                                    ==members=========
                                     cn=app1,ou=users,dc=example,dc=com
 ```
 
@@ -98,30 +98,23 @@ This is a sample LDAP organization to match the topology:
   *vhost* under the `odb-cluster1` RabbitMQ cluster. The group has a `members` attribute which has
   all the users' DN which are entitled to access the *vhost*, such as `cn=app1,ou=users,dc=example,dc=com`.
     ```
-    cn=demo-users,ou=odb-cluster1,ou=clusters,dc=example,dc=com
-    ===========
-    cn=app1,ou=users,dc=example,dc=com
+      cn=demo-users,ou=odb-cluster1,ou=clusters,dc=example,dc=com
+      members: cn=app1,ou=users,dc=example,dc=com
     ```
 
 
 
 
 ### RabbitMQ configuration
-  - Look up users following this DN:
+  - Look up users following the DN below. For authentication purposes, RabbitMQ binds to LDAP server using the user's credentials (i.e. *username* and *password*):
     ```
     user_dn_pattern: cn=${username},ou=users,dc=example,dc=com
     ```
-  - User permissions to vhosts are done via a group under the corresponding cluster.
-    In this example, `app1` can access vhost `demo` on `odb-cluster1`
-    ```
-      cn=demo-users,ou=odb-cluster1,ou=clusters,dc=example,dc=com
-      members: cn=app1,ou=users,dc=example,dc=com
-    ```
-  - This setup requires each cluster to have its own distinct LDAP configuration, specially the `vhost_access_query`.
-    For instance, in the cluster `odb-cluster1` we would need this query:
+  - User permissions to vhosts are done via a LDAP group under the corresponding cluster. This setup requires each cluster to have its own distinct LDAP configuration, specially the `vhost_access_query`.
+    For instance, in the cluster `odb-cluster1` we would need this `vhost_access_query`:
     `cn=${vhost}-users,ou=odb-cluster1,ou=clusters,dc=example,dc=com`
 
-    whereas for `multi-tenant` we would need this other query:
+    whereas for `multi-tenant` we would need this other `vhost_access_query`:
     `cn=${vhost}-users,ou=multi-tenant,ou=clusters,dc=example,dc=com`
 
 
@@ -159,7 +152,7 @@ This is a sample LDAP organization to match the topology:
                                                 |
                                                 +--------------------+--- ....
                                                 |                    |
-                                                ou=odb-cluster1   ou=odb-cluster1
+                                                ou=odb-cluster1,   ou=odb-cluster1,
                                                 ou=clusters,        ou=clusters,
                                                 dc=example,        dc=example,
                                                 dc=com             dc=com
@@ -171,30 +164,33 @@ This is a sample LDAP organization to match the topology:
                                   ou=clusters,       ou=clusters,
                                   dc=example,        dc=example,
                                   dc=com             dc=com
-                                                     ========
+                                                     ===members=====
                                                      cn=app1,ou=odb-cluster1,ou=clusters,dc=example,dc=com
 ```
-
-### RabbitMQ configuration
+  - All clusters are under the same organizational unit
+    ```
+    ou=clusters,dc=example,dc=com
+    ```
   - Each cluster has its own organizatinal unit:
     ```
-    ou=multi-tenant,dc=example,dc=com
-    ou=on-demand-cluster1,dc=example,dc=com
+    ou=odb-cluster1,ou=clusters,dc=example,dc=com
     ```
-  - Users on the `multi-tenant` cluster are defined under
+  - Users are defined under the RabbitMQ cluster they belong to
     ```
-    user_dn_pattern: cn=${username},ou=multi-tenant,dc=example,dc=com
-    ```
-  - Sample users:
-    ```
-    cn=app1,ou=multi-tenant,dc=example,dc=com
-    cn=app2,ou=on-demand-cluster1,dc=example,dc=com
+    cn=app1,ou=odb-cluster1,ou=clusters,dc=example,dc=com
     ```
   - User permissions to vhosts are done via a group under the corresponding cluster.
     In this example, `app1` can access vhost `demo` on `odb-cluster1`
     ```
       cn=demo-users,ou=odb-cluster1,ou=clusters,dc=example,dc=com
       members: cn=app1,ou=odb-cluster1,ou=clusters,dc=example,dc=com
+    ```
+
+### RabbitMQ configuration
+
+  - Look up users following the DN below. For authentication purposes, RabbitMQ binds to LDAP server using the user's credentials (i.e. *username* and *password*):
+    ```
+    user_dn_pattern: cn=${username},ou=odb-cluster1,ou=clusters,dc=example,dc=com
     ```
   - This setup requires each cluster to have its own distinct LDAP configuration, specially the `vhost_access_query`.
     For instance, in the cluster `odb-cluster1` we would need this query:
