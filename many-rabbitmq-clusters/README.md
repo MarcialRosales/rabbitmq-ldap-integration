@@ -2,9 +2,9 @@
 
 We are going to explore how we can we use a single LDAP server to authenticate RabbitMQ clients across many RabbitMQ Clusters using LDAP. We have sliced the exploration in 2 directions.
 
-**LDAP entries for all RabbitMQ users/clients are defined under a single organizational unit independent of the RabbitMQ cluster they belong to**
+**LDAP entries for all RabbitMQ users/clients are defined under an organizational unit(s) independent of the RabbitMQ cluster they belong to**
 
-One direction is where all RabbitMQ users/clients are defined under a single organizational unit indistinctly of the RabbitMQ cluster. This direction is further explored in the [Topology 1](#topology-1) section.
+In this direction all RabbitMQ users/clients are defined under a common organizational unit (flat or hierarchical) separate from the organizational units associated to the RabbitMQ cluster. This direction is further explored in the [Topology 1](#topology-1) section for flat user organization and [Topology 3](#topology-3) section for a hierarchical user organization.
 
 **Advantages**:
 - We can easily grant a RabbitMQ client/user (e.g. `cn=joe,ou=users,dc=example,dc=com`) access to multiple RabbitMQ Clusters
