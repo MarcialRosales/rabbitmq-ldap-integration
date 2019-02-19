@@ -55,7 +55,7 @@ Let's say users are organized in LDAP in a more hierarchical fashion like shown 
     +-----------+              +                +
     |           |              |                |
   cn=bob       cn=bill       cn=joe           cn=alex
-   ou=depart1,  ou=depart1,   ou=People,       ou=People,
+   ou=depart1,  ou=depart1,   ou=depart2,      ou=depart3,
    dc=example,  dc=example,   dc=example,      dc=example,
    dc=com       dc=com        dc=com           dc=com
 ```
