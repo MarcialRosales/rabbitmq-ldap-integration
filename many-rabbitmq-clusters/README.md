@@ -221,11 +221,11 @@ This is a sample LDAP organization to match the topology. We have split the ldap
 ```
           dc=example, dc=com
                   |
-          +-------+--------
-          |                
-      ou=People          
-       dc=example,        
-       dc=com              
+          +-------+--------+
+          |                |
+      ou=People          cn=admin,
+       dc=example,       dc=example,
+       dc=com            dc=com
           |
           +-------+------------+----------------+-----------------
           |                    |                |
@@ -274,22 +274,25 @@ employeeType=administrator                      |                        |
 
 - All clusters are under a common *organizational unit* `ou=clusters,dc=example,dc=com`. However, if needed, we can further structure them into sub *Organizational units*.  
 - A cluster is modelled as an LDAP group. For instance, `cn=o3a2a91,ou=clusters,...` has 2 members: a end-user (`cn=bob`) and an service-account (`cn=app1,ou=finance`) from the `finance` *organizational unit*.
-- All users must have a common attribute. In our example, we chose `mail` given that all our users have the objectType inetOrgPerson`
-- Users with the attribute `employeeType` equal to `administrator` will grant them access to any cluster as `administrator`. `cn=bob,ou=employees,...` is the only user with the `administrator` role.
+- All users must have a common attribute. In our example, we chose `mail` given that all our users have the objectType `inetOrgPerson`
+- Users with the attribute `employeeType` equal to `administrator` will have access to **any** cluster as `administrator`. `cn=bob,ou=employees,...` is the only user with the `administrator` role.
 
 
 ### RabbitMQ configuration
 
-- During the authentication flow, bind with LDAP user `cn=admin,dc=example,dc=com` and password `admin` to look up RabbitMQ user based on the LDAP `mail` attribute starting from `ou=People,dc=example,dc=com`. It is highly recommended to create a separate user who only has *search* and *read* access under `ou=People,dc=example,dc=com` branch.
+- During the authentication flow, bind with LDAP user `cn=admin,dc=example,dc=com` and password `admin` to look up RabbitMQ user based on the LDAP `mail` attribute starting from `ou=People,dc=example,dc=com`.
+  >It is highly recommended to create a separate user who only has *search* and *read* access under  `ou=People,dc=example,dc=com` branch.
   ```
         {dn_lookup_attribute, "mail"},
         {dn_lookup_base,      "ou=People,dc=example,dc=com"},
         {dn_lookup_bind,      {"cn=admin,dc=example,dc=com", "admin"}},
   ```
-- To access any *vhost* in the cluster, the user must be a member of the cluster's LDAP group:
+
+- To access any *vhost* in the cluster, the user must be a member of the cluster's LDAP group. 
   ```
         {vhost_access_query,  {in_group, "cn=o3a2a91,ou=clusters,dc=example,dc=com", "uniqueMember"}}
   ```
+
 - All users with access to the cluster (controlled by `vhost_access_query`) have access to the management UI with `management` *user tag*. And all users who have the attribute `employeeType` with value `administrator` have also access to the management UI with `administrator` *user tag*:
   ```
         {tag_queries, [
