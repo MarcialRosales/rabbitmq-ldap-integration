@@ -102,9 +102,6 @@ This is a sample LDAP organization to match the topology:
       members: cn=app1,ou=users,dc=example,dc=com
     ```
 
-
-
-
 ### RabbitMQ configuration
   - Look up users following the DN below. For authentication purposes, RabbitMQ binds to LDAP server using the user's credentials (i.e. *username* and *password*):
     ```
@@ -116,7 +113,6 @@ This is a sample LDAP organization to match the topology:
 
     whereas for `multi-tenant` we would need this other `vhost_access_query`:
     `cn=${vhost}-users,ou=multi-tenant,ou=clusters,dc=example,dc=com`
-
 
 
 ## Topology 2
@@ -198,3 +194,110 @@ This is a sample LDAP organization to match the topology:
 
     whereas for `multi-tenant` we would need this other query:
     `cn=${vhost}-users,ou=multi-tenant,ou=clusters,dc=example,dc=com`
+
+
+
+## Topology 3
+
+Users are defined in LDAP indistinctly of which cluster they are entitled to access and we use group membership to configure which users are allowed to access which RabbitMQ cluster & *vhost*.
+Users are defined in LDAP in a hierarchical fashion.
+
+### RabbitMQ topology
+
+This is a sample RabbitMQ topology to illustrate this set up. Here we have 3 different RabbitMQ Clusters where there is only one **vhost** per RabbitMQ cluster (similar to what happens with [On-demand RabbitMQ for PCF](https://docs.pivotal.io/rabbitmq-cf/1-15/use.html)).
+
+```
+    odb-cluster1
+      +-- vhost: 3a2a9f
+
+    odb-cluster2
+      +-- vhost: 72e0dd
+
+```
+
+> Given this configuration where there wont be more than one vhost, we dont necessarily need to configure a vhost-access-query. In other words, every user has access to any vhost even though there wont be more than one.
+
+### LDAP organization
+
+This is a sample LDAP organization to match the topology. We have split the ldap tree into 2 diagrams.
+
+```
+          dc=example, dc=com
+                  |
+          +-------+--------
+          |                
+      ou=People          
+       dc=example,        
+       dc=com              
+          |
+          +-------+------------+----------------+-----------------
+          |                    |                |
+       ou=employees       ou=contractors,   ou=service_accounts,
+       ou=People          ou=People,        ou=People,
+       dc=example,         dc=example,        dc=example,
+       dc=com              dc=com             dc=com
+          |                    |                |
+          |                    |                |
+  +-------+-----+              +                +------------------------+
+  |             |              |                |                        |
+cn=bob         cn=bill       cn=joe           ou=finance              ou=integration,
+ou=employees,  ou=employees, ou=contractors,  ou=service_accounts,    ou=service_accounts,
+ou=People,     ou=People,    ou=People,       ou=People,              ou=People,
+dc=example,    dc=example,   dc=example,      dc=example,             dc=example,
+dc=com         dc=com        dc=com           dc=com                  dc=com
+------                                          +                        +  
+employeeType=administrator                      |                        |                         
+                                              cn=app1,                 cn=app2,
+                                              ou=finance,              ou=integration,
+                                              ou=service_accounts,     ou=service_accounts,
+                                              ou=People,               ou=People,
+                                              dc=example,              dc=example,
+                                              dc=com                   dc=com
+```     
+
+```
+          dc=example, dc=com
+                  |
+          +-------+------------+----------------+
+                                                |
+                                            ou=clusters,
+                                            dc=example,
+                                            dc=com
+                                                |
+                                        +-------+------------+--- ....
+                                        |                    |
+                                    cn=o3a2a91,           cn=3a2a92,
+                                    ou=clusters,          ou=clusters,
+                                    dc=example,           dc=example,
+                                    dc=com                dc=com
+                                  ===members=====         ===members=====
+                                  cn=app1,ou=finance,...  cn=app2,ou=integration,...
+                                  cn=bob,ou=employees,..  cn=bill,ou=employees,...
+```
+
+- All clusters are under a common *organizational unit* `ou=clusters,dc=example,dc=com`. However, if needed, we can further structure them into sub *Organizational units*.  
+- A cluster is modelled as an LDAP group. For instance, `cn=o3a2a91,ou=clusters,...` has 2 members: a end-user (`cn=bob`) and an service-account (`cn=app1,ou=finance`) from the `finance` *organizational unit*.
+- All users must have a common attribute. In our example, we chose `mail` given that all our users have the objectType inetOrgPerson`
+- Users with the attribute `employeeType` equal to `administrator` will grant them access to any cluster as `administrator`. `cn=bob,ou=employees,...` is the only user with the `administrator` role.
+
+
+### RabbitMQ configuration
+
+- During the authentication flow, bind with LDAP user `cn=admin,dc=example,dc=com` and password `admin` to look up RabbitMQ user based on the LDAP `mail` attribute starting from `ou=People,dc=example,dc=com`. It is highly recommended to create a separate user who only has *search* and *read* access under `ou=People,dc=example,dc=com` branch.
+  ```
+        {dn_lookup_attribute, "mail"},
+        {dn_lookup_base,      "ou=People,dc=example,dc=com"},
+        {dn_lookup_bind,      {"cn=admin,dc=example,dc=com", "admin"}},
+  ```
+- To access any *vhost* in the cluster, the user must be a member of the cluster's LDAP group:
+  ```
+        {vhost_access_query,  {in_group, "cn=o3a2a91,ou=clusters,dc=example,dc=com", "uniqueMember"}}
+  ```
+- All users with access to the cluster (controlled by `vhost_access_query`) have access to the management UI with `management` *user tag*. And all users who have the attribute `employeeType` with value `administrator` have also access to the management UI with `administrator` *user tag*:
+  ```
+        {tag_queries, [
+            {administrator,  {equals, {attribute, "${user_dn}", "employeeType"},
+                                      {string, "administrator" }},
+            {management,     {constant, true}}
+        ]},
+  ```
