@@ -214,8 +214,6 @@ This is a sample RabbitMQ topology to illustrate this set up. Here we have 3 dif
 
 ```
 
-> Given this configuration where there wont be more than one vhost, we dont necessarily need to configure a vhost-access-query. In other words, every user has access to any vhost even though there wont be more than one.
-
 ### LDAP organization
 
 This is a sample LDAP organization to match the topology. We have split the ldap tree into 2 diagrams.
