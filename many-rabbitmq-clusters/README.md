@@ -199,8 +199,7 @@ This is a sample LDAP organization to match the topology:
 
 ## Topology 3
 
-Users are defined in LDAP indistinctly of which cluster they are entitled to access and we use group membership to configure which users are allowed to access which RabbitMQ cluster & *vhost*.
-Users are defined in LDAP in a hierarchical fashion.
+Users are defined under a tree of *organizational unit*(s) independent from the *organizational units* dedicated to RabbitMQ cluster. To model which users are allowed to access which RabbitMQ clusters we use LDAP group membership. Users' roles can be defined using LDAP groups and/or attributes. In this topology we have used the latter however if you wanted to see how it is model with groups check out [Authentication, User tags and Vhosts](auth-tags-vhost/README.md) scenario.
 
 ### RabbitMQ topology
 
