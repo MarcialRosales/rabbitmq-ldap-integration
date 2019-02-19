@@ -242,7 +242,7 @@ ou=employees,  ou=employees, ou=contractors,  ou=service_accounts,    ou=service
 ou=People,     ou=People,    ou=People,       ou=People,              ou=People,
 dc=example,    dc=example,   dc=example,      dc=example,             dc=example,
 dc=com         dc=com        dc=com           dc=com                  dc=com
-------                                          +                        +  
+==attr==                                        +                        +  
 employeeType=administrator                      |                        |                         
                                               cn=app1,                 cn=app2,
                                               ou=finance,              ou=integration,
