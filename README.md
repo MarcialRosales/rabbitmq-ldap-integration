@@ -10,14 +10,15 @@ The last scenario, [Authentication and Authorization (tags, vhosts, resources)](
 
 The aim of this repository is to address more scenarios in the future.
 
-## Prequisites to follow this guide
+## Prerequisites to follow this guide
 
-- RabbitMQ is running locally (localhost:5672 and localhost:15672)
-- Docker is installed. We will use Docker to run **OpenLDAP**
+This guide assumes RabbitMQ is running locally (on port 5672 and 15672). It also provides an script to deploy **OpenLDAP** locally via Docker. Additionally, we need the following prerequisites:
 - `ldap` tools are installed such as `ldapsearch` and/or `ldapadd`.
 - Ruby is installed. We will use it to run some AMQP clients.
 - Python is installed. We will use it to run [rabbitmqadmin](https://www.rabbitmq.com/management-cli.html)
 - `rabbitadmin` is installed.  Go to [http://localhost:15672/cli/rabbitmqadmin](http://localhost:15672/cli/rabbitmqadmin]), copy the downloaded file to your preferred location in your `PATH`
+
+If you are currently running [RabbitMQ for PCF](https://docs.pivotal.io/rabbitmq-cf/1-17/index.html), this [guide](rabbitmq-4-pcf.md) walks you through the steps on how to set it up with LDAP authentication so that you can try any of the scenarios we will cover the next sections. It also shows you how to deploy **OpenLDAP** in a separate VM and make it accessible from your RabbitMQ for PCF. 
 
 ## Implemented Integration scenarios
 
