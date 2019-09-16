@@ -128,6 +128,8 @@ Update the Base64 LDAP configurations onto `RabbitMQ Configuration` field on the
 ![LDAP configs for RabbitMQ for PCF](images/ldap-rabbitmq-configs.png)
 
 
+5. Save and apply changes
+
 ## 4. Verify LDAP user can log in 
 
 
