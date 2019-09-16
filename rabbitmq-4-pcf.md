@@ -132,10 +132,11 @@ Update the Base64 LDAP configurations onto `RabbitMQ Configuration` field on the
 
 ## 4. Verify LDAP user can log in 
 
-
+```
 curl -u nsarvi:<password> <pcf-rabbitmq-http-api-uri>/overview | jq
+```
 
 ![API overview](images/curl-api-overview.png)
 
 
-LDAP users can log-in to RMQ management UI. 
+LDAP users can log-in to RMQ management UI as well. 
