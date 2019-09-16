@@ -76,7 +76,7 @@ Enable RabbitMQ LDAP plugin by following the below steps
 # Configure LDAP 
 
 There are various ways to configure RabbitMQ for authentication and authorization against LDAP. 
-The below steps represents the only authentication against LDAP and then fallback to internal database.
+The below steps represents 'only authentication' against LDAP and fallback to internal database.
 
 ## 1. Prepare LDAP configurations
 
