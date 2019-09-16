@@ -1,8 +1,8 @@
 # Configure RabbitMQ for PCF with LDAP Authentication
 
-This guide demonstrates how to set up RabbitMQ for PCF to authenticate and authorize via the LDAP plugin. It starts with a very simple scenario 'Only Authentication', which just configures RabbitMQ to authenticate users via LDAP.
+This guide demonstrates how to set up RabbitMQ for PCF to authenticate and authorize via the LDAP plugin. The below configurations are applicable to 'Only Authentication' scenario, which just configures RabbitMQ to authenticate users via LDAP.
 
-For further configuring RabbitMQ with LDAP to secure vhost access, secure resource (i.e. *exchanges* and *queues*) access and management plugin access, follow the similar steps mentioned in [RabbitMQ integration with LDAP](README.md)
+For further configuring RabbitMQ with LDAP to secure vhost access, secure resource (i.e. *exchanges* and *queues*) access and management plugin access, follow the similar steps mentioned in [RabbitMQ integration with LDAP](README.md) for RabbitMQ and LDAP configurations.
 
 As of RabbitMQ for PCF v1.17, LDAP configuration is supported on Pre-Provisioned Service. LDAP configuration for On-Demand Service is planned to release in future versions.
 
