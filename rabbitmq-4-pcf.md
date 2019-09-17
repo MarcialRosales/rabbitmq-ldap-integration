@@ -4,19 +4,39 @@ This guide demonstrates how to set up RabbitMQ for PCF to authenticate and autho
 
 For further configuring RabbitMQ with LDAP to secure vhost access, secure resource (i.e. *exchanges* and *queues*) access and management plugin access, follow the similar steps mentioned in [RabbitMQ integration with LDAP](README.md) for RabbitMQ and LDAP configurations.
 
-As of RabbitMQ for PCF v1.17, LDAP configuration is supported on Pre-Provisioned Service. LDAP configuration for On-Demand Service is planned to release in future versions.
+As of [RabbitMQ for PCF v1.17](https://docs.pivotal.io/rabbitmq-cf/1-17/index.html), LDAP configuration is supported on Pre-Provisioned Service. LDAP configuration for On-Demand Service is planned to release in future versions.
 
-# Prerequisites to follow this guide
-The following prerequisites to follow the the below steps
+<!-- TOC START min:2 max:3 link:true asterisk:false update:true -->
+- [Prerequisites to follow this guide](#prerequisites-to-follow-this-guide)
+- [1. Deploy standalone OpenLDAP server](#1-deploy-standalone-openldap-server)
+- [2. LDAP users setup](#2-ldap-users-setup)
+- [3. Enable LDAP plugin in RabbitMQ for PCF](#3-enable-ldap-plugin-in-rabbitmq-for-pcf)
+- [4. Configure LDAP in RabbitMQ for PCF](#4-configure-ldap-in-rabbitmq-for-pcf)
+- [4.1. Prepare LDAP configurations](#41-prepare-ldap-configurations)
+- [4.2. Convert to Base64](#42-convert-to-base64)
+- [4.3. Update RabbitMQ configurations](#43-update-rabbitmq-configurations)
+- [5. Save and apply changes](#5-save-and-apply-changes)
+- [6. Verify LDAP user can log in](#6-verify-ldap-user-can-log-in)
+<!-- TOC END -->
+
+
+## Prerequisites to follow this guide
+The following prerequisites to follow the below steps
 
 - Access to PCF Ops Manager
 - Pre-Provisioned Service instance and service key should be created
 - `LDAP server` installed and configured as mentioned in [Only Authentication](only-authentication/README.md)
-- 'LDAP server' port 389 (default) or any configured port should be open 
+- 'LDAP server' port 389 (default) or any configured port should be open
 - `ldapsearch` and `ldap-utils` package should be installed on local/edge machine  
 
+## 1. Deploy standalone OpenLDAP server
 
-# LDAP users setup
+We chose to deploy [Pivotal Cloud Foundry](https://pivotal.io/platform) in [Google Cloud Platform](cloud.google.com‎).
+
+Follow these steps to deploy OpenLDAP as separate VM in GCP:
+
+
+## 2. LDAP users setup
 
 `LDAP server` is configured with the following structure
 
@@ -63,7 +83,7 @@ ldapadd -h <ldap-server-host> -p <ldap-port> -D "cn=ldapadm,dc=datatx,dc=pivotal
 
 ```
 
-# Enable LDAP plugin 
+## 3. Enable LDAP plugin in RabbitMQ for PCF
 Enable RabbitMQ LDAP plugin by following the below steps
 
 1. Login to Ops Manager
@@ -73,12 +93,12 @@ Enable RabbitMQ LDAP plugin by following the below steps
 
 ![Enable RabbitMQ LDAP plugin for PCF](images/enable-ldap-plugin.png)
 
-# Configure LDAP 
+## 4. Configure LDAP in RabbitMQ for PCF
 
-There are various ways to configure RabbitMQ for authentication and authorization against LDAP. 
+There are various ways to configure RabbitMQ for authentication and authorization against LDAP.
 The below steps represents 'only authentication' against LDAP and fallback to internal database.
 
-## 1. Prepare LDAP configurations
+## 4.1. Prepare LDAP configurations
 
 The following configurations represents only authentication against LDAP and fallback to internal database.
 
@@ -105,9 +125,9 @@ rabbit-auth.config
 ```
 
 For various scenarios on authentication and authorizing resources (vhosts, exchanges, queues), prepare LDAP configurations as mentioned in [RabbitMQ integration with LDAP](README.md)
- 
 
-## 2. Convert to Base64
+
+## 4.2. Convert to Base64
 
 Convert the above configurations to Base64 encoding using openssl.
 
@@ -115,7 +135,7 @@ Convert the above configurations to Base64 encoding using openssl.
 openssl base64 -in rabbit-auth.config -out rabbit-auth-base64.config
 ```
 
-## 3. Update RabbitMQ configurations
+## 4.3. Update RabbitMQ configurations
 
 Update the Base64 LDAP configurations onto `RabbitMQ Configuration` field on the RabbitMQ tile.
 
@@ -128,9 +148,9 @@ Update the Base64 LDAP configurations onto `RabbitMQ Configuration` field on the
 ![LDAP configs for RabbitMQ for PCF](images/ldap-rabbitmq-configs.png)
 
 
-5. Save and apply changes
+## 5. Save and apply changes
 
-## 4. Verify LDAP user can log in 
+## 6. Verify LDAP user can log in
 
 ```
 curl -u nsarvi:<password> <pcf-rabbitmq-http-api-uri>/overview | jq
@@ -139,4 +159,4 @@ curl -u nsarvi:<password> <pcf-rabbitmq-http-api-uri>/overview | jq
 ![API overview](images/curl-api-overview.png)
 
 
-LDAP users can log-in to RMQ management UI as well. 
+LDAP users can log-in to RMQ management UI as well.
