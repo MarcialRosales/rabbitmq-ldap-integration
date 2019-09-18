@@ -9,7 +9,7 @@ As of [RabbitMQ for PCF v1.17](https://docs.pivotal.io/rabbitmq-cf/1-17/index.ht
 <!-- TOC START min:2 max:3 link:true asterisk:false update:true -->
 - [Prerequisites to follow this guide](#prerequisites-to-follow-this-guide)
 - [1. Deploy standalone OpenLDAP server](#1-deploy-standalone-openldap-server)
-- [2. LDAP users setup](#2-ldap-users-setup)
+- [2. LDAP users and groups setup](#2-ldap-users-and-groups-setup)
 - [3. Enable LDAP plugin in RabbitMQ for PCF](#3-enable-ldap-plugin-in-rabbitmq-for-pcf)
 - [4. Configure LDAP in RabbitMQ for PCF](#4-configure-ldap-in-rabbitmq-for-pcf)
 - [4.1. Prepare LDAP configurations](#41-prepare-ldap-configurations)
@@ -25,18 +25,89 @@ The following prerequisites to follow the below steps
 
 - Access to PCF Ops Manager
 - Pre-Provisioned Service instance and service key should be created
-- `LDAP server` installed and configured as mentioned in [Only Authentication](only-authentication/README.md)
-- 'LDAP server' port 389 (default) or any configured port should be open
 - `ldapsearch` and `ldap-utils` package should be installed on local/edge machine  
 
 ## 1. Deploy standalone OpenLDAP server
 
 We chose to deploy [Pivotal Cloud Foundry](https://pivotal.io/platform) in [Google Cloud Platform](cloud.google.com‎).
 
-Follow these steps to deploy OpenLDAP as separate VM in GCP:
+Follow these steps to deploy OpenLDAP as separate VM in GCP if LDAP server is not installed and configured.
+
+The below steps configures the base DN for users as 
+
+```
+ou=People,dc=datatx,dc=pivotal,dc=io
+```
+
+and for user groups
+
+```
+ou=Group,dc=datatx,dc=pivotal,dc=io
+```
+
+### Install OpenLDAP
+If different base DN for users and groups required, please change ldif files under openldap-configs.
+
+1. Login to GCP cloud console and create CentOS 7.x VM of type n1-standard-1 and 20 GB disk space.
+
+2. Open the port `389` which is default non-tls ldap port.
+
+2. Transfer bash script files under scripts directory to newly created VM and install OpenLDAP.
+
+```cmd
+chmod +x /openldap-configs/*.sh
+sudo ./openldap-configs/install-openldap.sh
+```
+
+3. Generate and record SHA hashed password for LDAP admin
+
+```cmd
+sudo slappasswd
+```
+
+### Configure OpenLDAP
+
+LDAP domain is datatx.pivotal.io which should be translated to various LDAP configs (ldifs) as below
+
+```cmd
+dc=datatx,dc=pivotal,dc=io
+```
+
+DN for the LDAP admin is
+
+```cmd
+cn=ldapadm,dc=datatx,dc=pivotal,dc=io
+```
 
 
-## 2. LDAP users setup
+1. Update your Base DN, LDAP admin DN and hashed LDAP admin password in db.ldif and monitor.ldif
+
+2. Deploy db.ldif and monitor.ldif
+
+```cmd
+sudo ldapmodify -Y EXTERNAL -H ldapi:/// -f db.ldif
+sudo ldapmodify -Y EXTERNAL -H ldapi:/// -f monitor.ldif
+```
+
+
+### Setup OpenLDAP
+
+1. Setup OpenLDAP database 
+
+```cmd
+sudo ./openldap-configs/setup-openldap.sh
+```
+
+2. Update your Base DN, LDAP admin DN and User DN in base.ldif
+
+```cmd
+sudo ldapadd -x -W -D "cn=ldapadm,dc=datatx,dc=pivotal,dc=io" -f base.ldif
+```
+Enter LDAP admin password when prompted.
+
+
+
+## 2. LDAP users and groups setup
 
 `LDAP server` is configured with the following structure
 
@@ -73,15 +144,40 @@ objectClass: inetOrgPerson
 userpassword: f1NTSEF9MlYwbnzwZWVwZmJPazJjTHRUbUcwMXdDTE5nNDAwR2E=
 uid: mrosales
 mail: mrosales@pivotal.io
-
 ```
 
 Add the users to `ldapserver`
 
 ```
-ldapadd -h <ldap-server-host> -p <ldap-port> -D "cn=ldapadm,dc=datatx,dc=pivotal,dc=io" -w  -f rabbitmq-users.ldif
-
+sudo ldapadd -h <ldap-server-host> -p <ldap-port> -D "cn=ldapadm,dc=datatx,dc=pivotal,dc=io" -w  -f rabbitmq-users.ldif
 ```
+
+ldapadd command can be run from remote/edge machine as long as there is connectivity and LDAP port (389 default) is open. Please install the appropriate openldap client packages on remote/edge machine.
+
+
+Create admin-group-users.ldif as below
+
+```cmd
+dn: cn=administrator,ou=Group,dc=datatx,dc=pivotal,dc=io
+objectClass: groupofnames
+cn: administrator
+description: Admin group
+member: cn=mrosales,ou=People,dc=datatx,dc=pivotal,dc=io
+member: cn=nsarvi,ou=People,dc=datatx,dc=pivotal,dc=io
+```
+
+Add users to `administrator` group
+```
+ldapadd -x -W -D "cn=ldapadm,dc=datatx,dc=pivotal,dc=io" -f admin-group.ldif
+```
+
+### Verify LDAP users
+
+```cmd
+ldapsearch -h <ldap-server-host> -p <ldap-port> -D "cn=ldapadm,dc=datatx,dc=pivotal,dc=io" -w admin -b "ou=People, dc=datatx,dc=pivotal,dc=io" 'uid=nsarvi'
+```
+ldapsearch command can be run from remote/edge machine as long as there is connectivity and LDAP port (389 default) is open.
+
 
 ## 3. Enable LDAP plugin in RabbitMQ for PCF
 Enable RabbitMQ LDAP plugin by following the below steps

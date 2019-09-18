@@ -1,0 +1,17 @@
+dn: dc=datatx,dc=pivotal,dc=io
+dc: datatx
+objectClass: top
+objectClass: domain
+
+dn: cn=ldapadm,dc=datatx,dc=pivotal,dc=io
+objectClass: organizationalRole
+cn: ldapadm
+description: LDAP Manager
+
+dn: ou=People,dc=datatx,dc=pivotal,dc=io
+objectClass: organizationalUnit
+ou: People
+
+dn: ou=Group,dc=datatx,dc=pivotal,dc=io
+objectClass: organizationalUnit
+ou: Group
