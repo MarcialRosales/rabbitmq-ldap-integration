@@ -171,7 +171,7 @@ The `admin-group-users.ldif` represents the group `administrator` and two users 
 
 Add users to `administrator` group
 ```
-ldapadd -x -W -D "cn=ldapadm,dc=datatx,dc=pivotal,dc=io" -f admin-group-users.ldif
+usdo ldapadd -x -W -D "cn=ldapadm,dc=datatx,dc=pivotal,dc=io" -f admin-group-users.ldif
 ```
 
 
@@ -186,7 +186,7 @@ ldapsearch -h <ldap-server-host> -p <ldap-port> -D "cn=ldapadm,dc=datatx,dc=pivo
 ldapsearch command can be run from remote/edge machine as long as there is connectivity and LDAP port (389 default) is open.
 
 
-Additionally, [jxplorer](http://jxplorer.org/downloads/users.html) tool can be used to connect and create users, groups and associate user to groups.
+Additionally, [jxplorer](http://jxplorer.org/downloads/users.html) tool can be used to create users, groups and associate user to groups.
 
 
 ## 3. Enable LDAP plugin in RabbitMQ for PCF
