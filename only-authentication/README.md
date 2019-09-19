@@ -1,6 +1,6 @@
 # Only Authentication
 
-In this scenario we will configure RabbitMQ so that users are authenticated against the LDAP database and not against the internal RabbitMQ Database. So, even if we had the default user `guest:guest`, we wont be able to authenticate it with it anymore. We can certainly configure RabbitMQ to use both, first LDAP and then the internal, but this is not the option we will configure at this time.
+In this scenario we will configure RabbitMQ so that users are authenticated against the LDAP database and not against the internal RabbitMQ Database. The default user `guest:guest` wont be able to authenticate anymore. We can certainly configure RabbitMQ to use both, first LDAP and then the internal, but this is not the option we will configure at this time.
 
 In this scenario, we are not going to configure authorization, i.e. users will be allowed to access any resource on any vhost.
 
@@ -71,15 +71,15 @@ userPassword:: e1NTSEF9MlYwbnZwZWVwZmJPazJjTHRUbUcwMXdDTE5nNDAwR2E=
 
 There is a concept of `objectClass` in LDAP that defines a set of attributes for an object. An LDAP  `object` may have one or many `objectClass`(s). For instance, the `admin` user has 2 `objectClass`(s), one of them is `simpleSecurityObject` which has an attribute called `userPassword`.
 
-If we wanted to return only the users which has the class `simpleSecurityObject` (Check out [Common LDAP schemas](https://oav.net/mirrors/LDAP-ObjectClasses.html) for other object classes and their attributes) we could run:
+If we wanted to return only the users which has the class `simpleSecurityObject` (Check out [Common LDAP schemas](https://oav.net/mirrors/LDAP-ObjectClasses.html) for other object classes and their attributes) we run:
 
 ```
 ldapsearch -x -b "dc=example,dc=com" -w admin "(objectClass=simpleSecurityObject)"
 ```
 
-Note: We always pass the password (`-w admin`). We omit the hostname and port because they in the `~/.ldaprc` file.
+> We always pass the password (`-w admin`). We omit the hostname and port because they are in the `~/.ldaprc` file.
 
-To search an entry by its `cn` attribute. We omit the base dn `-b  "dc=example,dc=com"` because it is also in `~/.ldaprc`.
+To search an entry by its `cn` attribute we can omit the base dn `-b  "dc=example,dc=com"` because it is also in `~/.ldaprc`.
 
 ```
 ldapsearch -x -w admin "cn=admin"
