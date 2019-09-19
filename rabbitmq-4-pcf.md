@@ -9,7 +9,11 @@ As of [RabbitMQ for PCF v1.17](https://docs.pivotal.io/rabbitmq-cf/1-17/index.ht
 <!-- TOC START min:2 max:3 link:true asterisk:false update:true -->
 - [Prerequisites to follow this guide](#prerequisites-to-follow-this-guide)
 - [1. Deploy standalone OpenLDAP server](#1-deploy-standalone-openldap-server)
+    - [Install OpenLDAP](#install-openldap)
+    - [Configure OpenLDAP](#configure-openldap)
+    - [Setup OpenLDAP](#setup-openldap)
 - [2. LDAP users and groups setup](#2-ldap-users-and-groups-setup)
+    - [Verify LDAP users](#verify-ldap-users)
 - [3. Enable LDAP plugin in RabbitMQ for PCF](#3-enable-ldap-plugin-in-rabbitmq-for-pcf)
 - [4. Configure LDAP in RabbitMQ for PCF](#4-configure-ldap-in-rabbitmq-for-pcf)
 - [4.1. Prepare LDAP configurations](#41-prepare-ldap-configurations)
@@ -29,11 +33,11 @@ The following are the prerequisites:
 
 ## 1. Deploy standalone OpenLDAP server
 
-We chose to deploy [Pivotal Cloud Foundry](https://pivotal.io/platform) in [Google Cloud Platform](cloud.google.com‎).
+We chose to deploy [Pivotal Cloud Foundry](https://pivotal.io/platform) in [Google Cloud Platform](cloud.google.com‎). For this reason, we are going to deploy OpenLDAP in GCP too.
 
 Follow the below steps to deploy OpenLDAP as separate VM in GCP if LDAP server is not deployed.
 
-The steps below configures the base DN for users as 
+The steps below configures the base DN for users as
 
 ```
 ou=People,dc=datatx,dc=pivotal,dc=io
@@ -54,28 +58,28 @@ If different base DN for users and groups required, please change ldif files und
 
 2. Transfer bash script files under scripts directory to newly created VM and execute the commands on the VM.
 
-```cmd
+```shell
 chmod +x /openldap-configs/*.sh
 sudo ./openldap-configs/install-openldap.sh
 ```
 
 3. Generate and record SHA hashed password for LDAP admin
 
-```cmd
+```shell
 sudo slappasswd
 ```
 
 ### Configure OpenLDAP
 
-LDAP domain is datatx.pivotal.io which should be translated as below in LDAP configs (*.ldifs) under openldap-configs 
+LDAP domain is datatx.pivotal.io which should be translated as below in LDAP configs (`*.ldifs`) under [openldap-configs](openldap-configs)
 
-```cmd
+```shell
 dc=datatx,dc=pivotal,dc=io
 ```
 
 DN for the LDAP admin is
 
-```cmd
+```shell
 cn=ldapadm,dc=datatx,dc=pivotal,dc=io
 ```
 
@@ -84,7 +88,7 @@ cn=ldapadm,dc=datatx,dc=pivotal,dc=io
 
 2. Deploy db.ldif and monitor.ldif
 
-```cmd
+```shell
 sudo ldapmodify -Y EXTERNAL -H ldapi:/// -f db.ldif
 sudo ldapmodify -Y EXTERNAL -H ldapi:/// -f monitor.ldif
 ```
@@ -92,15 +96,15 @@ sudo ldapmodify -Y EXTERNAL -H ldapi:/// -f monitor.ldif
 
 ### Setup OpenLDAP
 
-1. Setup OpenLDAP database 
+1. Setup OpenLDAP database
 
-```cmd
+```shell
 sudo ./openldap-configs/setup-openldap.sh
 ```
 
 2. Update your Base DN, LDAP admin DN and User DN in base.ldif
 
-```cmd
+```shell
 sudo ldapadd -x -W -D "cn=ldapadm,dc=datatx,dc=pivotal,dc=io" -f base.ldif
 ```
 Enter LDAP admin password when prompted.
@@ -148,7 +152,7 @@ mail: mrosales@pivotal.io
 
 Add the users to `ldapserver`
 
-```
+```shell
 sudo ldapadd -h <ldap-server-host> -p <ldap-port> -D "cn=ldapadm,dc=datatx,dc=pivotal,dc=io" -w  -f rabbitmq-users.ldif
 ```
 
@@ -157,7 +161,7 @@ ldapadd command can be run from remote/edge machine as long as there is connecti
 
 Create admin-group-users.ldif as below and add users using `member` attribute
 
-```cmd
+```
 dn: cn=administrator,ou=Group,dc=datatx,dc=pivotal,dc=io
 objectClass: groupofnames
 cn: administrator
@@ -170,14 +174,14 @@ member: cn=nsarvi,ou=People,dc=datatx,dc=pivotal,dc=io
 The `admin-group-users.ldif` represents the group `administrator` and two users added to this group. Additional users can be added in the similar way.
 
 Add users to `administrator` group
-```
+```shell
 usdo ldapadd -x -W -D "cn=ldapadm,dc=datatx,dc=pivotal,dc=io" -f admin-group-users.ldif
 ```
 
 
 ### Verify LDAP users
 
-```cmd
+```shell
 ldapsearch -h <ldap-server-host> -p <ldap-port> -D "cn=ldapadm,dc=datatx,dc=pivotal,dc=io" -w admin -b "ou=People, dc=datatx,dc=pivotal,dc=io" 'uid=nsarvi'
 ```
 
@@ -237,7 +241,7 @@ For various scenarios on authentication and authorizing resources (vhosts, excha
 
 Convert the above configurations to Base64 encoding using openssl.
 
-```
+```shell
 openssl base64 -in rabbit-auth.config -out rabbit-auth-base64.config
 ```
 
@@ -258,7 +262,7 @@ Update the Base64 LDAP configurations onto `RabbitMQ Configuration` field on the
 
 ## 6. Verify LDAP user can log in
 
-```
+```shell
 curl -u nsarvi:<password> <pcf-rabbitmq-http-api-uri>/overview | jq
 ```
 
