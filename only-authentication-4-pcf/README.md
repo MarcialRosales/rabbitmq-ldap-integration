@@ -184,7 +184,7 @@ The below steps represents 'only authentication' against LDAP and fallback to in
 
 ### 5.1. Prepare LDAP configurations
 
-The following configurations represents only authentication against LDAP and fallback to internal database.
+The following configurations represents only authentication against LDAP.
 
 
 ```
