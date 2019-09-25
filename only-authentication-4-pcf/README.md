@@ -22,13 +22,13 @@ We chose to deploy [Pivotal Cloud Foundry](https://pivotal.io/platform) in [Goog
 2. Open the port `389` which is default ldap port.
 
 
-From within the `only-authentication-4-pcf` folder, run `start.sh` script to launch **OpenLDAP** and create default users as below. 
+From within the `only-authentication-4-pcf` folder, run `start.sh` script to launch **OpenLDAP** and create default users. 
 
 ```
 sudo start.sh
 ```
 
-This script prompt for root DN, base DN for users, LDAP admin password for customization. If inputs are not provided, the script will run with below defaults:
+This script prompts for root DN, base DN for users, LDAP admin password for customization. If inputs are not provided, the script will run with below defaults:
   - Root DN: `dc=example,dc=com`
   - Base DN for Users `ou=People,dc=example,dc=com` 
   - LDAP admin user `admin` and password `admin`.
@@ -124,9 +124,11 @@ userPassword:: Y2hhbmdlbWU=
 
 ## 3. Create additional users in LDAP
 
-Once we have LDAP running, we need to create users by adding users import the users `users.ldif` and importing to `LDAP`. 
+Once we have LDAP running, we need to create users by adding users in new file `users.ldif` and then importing to `LDAP`. 
 
-create a file `users.ldif` and additional users as below 
+create a file `users.ldif` and add users by following LDAP format to define the objects.
+
+For eg:
 
 ```
  dn: cn=user1,ou=People,dc=example,dc=com
@@ -148,19 +150,19 @@ create a file `users.ldif` and additional users as below
  userPassword: {SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g=
 ```
 
-Run the following command to create:
+Run the `ldapadd` command to import users into LDAP:
 
 ```
-ldapadd -x -h localhost -p 389  -w admin -D "cn=admin,dc=example,dc=com" -f additional-users.ldif
+ldapadd -x -h localhost -p 389  -w admin -D "cn=admin,dc=example,dc=com" -f users.ldif
 ```
 
 From remote/edge machine
 
 ```
-ldapadd -x -h <ldap-server-host/ip> -p 389  -w admin -D "cn=admin,dc=example,dc=com" -f additional-users.ldif
+ldapadd -x -h <ldap-server-host/ip> -p 389  -w admin -D "cn=admin,dc=example,dc=com" -f users.ldif
 ```
 
-`additional-users.ldif` should follows LDAP format to define the objects we want to create.
+`users.ldif` should follows LDAP format to define the objects we want to create.
 
 SHA encoded version of password can be generated using : `slappasswd -h {SHA} -s password`
 
