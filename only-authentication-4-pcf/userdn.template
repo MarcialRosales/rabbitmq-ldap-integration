@@ -1,0 +1,4 @@
+dn: ou=${userdn},dc=${rootdn_fval},dc=${rootdn_lval}
+objectClass: organizationalUnit
+ou: ${userdn}
+

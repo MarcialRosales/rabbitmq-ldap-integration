@@ -175,17 +175,17 @@ The `admin-group-users.ldif` represents the group `administrator` and two users 
 
 Add users to `administrator` group
 ```shell
-usdo ldapadd -x -W -D "cn=ldapadm,dc=datatx,dc=pivotal,dc=io" -f admin-group-users.ldif
+sudo ldapadd -x -W -D "cn=ldapadm,dc=datatx,dc=pivotal,dc=io" -f admin-group-users.ldif
 ```
 
 
 ### Verify LDAP users
 
 ```shell
-ldapsearch -h <ldap-server-host> -p <ldap-port> -D "cn=ldapadm,dc=datatx,dc=pivotal,dc=io" -w admin -b "ou=People, dc=datatx,dc=pivotal,dc=io" 'uid=nsarvi'
+ldapsearch -h <ldap-server-host> -p <ldap-port> -W -D "cn=ldapadm,dc=datatx,dc=pivotal,dc=io" -b "ou=People, dc=datatx,dc=pivotal,dc=io" 'uid=nsarvi'
 ```
 
-![ldapsearch for a user](images/ldapsearch-user.png)
+![ldapsearch for a user](only-authentication-4-pcf/images/ldapsearch-user.png)
 
 ldapsearch command can be run from remote/edge machine as long as there is connectivity and LDAP port (389 default) is open.
 
@@ -201,7 +201,7 @@ Enable RabbitMQ LDAP plugin by following the below steps
 3. Click Pre-Provisioned RabbitMQ
 4. Check the `rabbitmq_auth_backend_ldap`  under `RabbitMQ plugins` as show in the below pic
 
-![Enable RabbitMQ LDAP plugin for PCF](images/enable-ldap-plugin.png)
+![Enable RabbitMQ LDAP plugin for PCF](only-authentication-4-pcf/images/enable-ldap-plugin.png)
 
 ## 4. Configure LDAP in RabbitMQ for PCF
 
@@ -255,7 +255,7 @@ Update the Base64 LDAP configurations onto `RabbitMQ Configuration` field on the
 4. Update RabbitMQ Configuration field with Base64 encoding
 
 
-![LDAP configs for RabbitMQ for PCF](images/ldap-rabbitmq-configs.png)
+![LDAP configs for RabbitMQ for PCF](only-authentication-4-pcf/images/ldap-rabbitmq-configs.png)
 
 
 ## 5. Save and apply changes
@@ -266,7 +266,7 @@ Update the Base64 LDAP configurations onto `RabbitMQ Configuration` field on the
 curl -u nsarvi:<password> <pcf-rabbitmq-http-api-uri>/overview | jq
 ```
 
-![API overview](images/curl-api-overview.png)
+![API overview](only-authentication-4-pcf/images/curl-api-overview.png)
 
 
 LDAP users can log-in to RMQ management UI as well.
