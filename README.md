@@ -18,7 +18,18 @@ This guide assumes RabbitMQ is running locally (on port 5672 and 15672). It also
 - Python is installed. We will use it to run [rabbitmqadmin](https://www.rabbitmq.com/management-cli.html)
 - `rabbitadmin` is installed.  Go to [http://localhost:15672/cli/rabbitmqadmin](http://localhost:15672/cli/rabbitmqadmin]), copy the downloaded file to your preferred location in your `PATH`
 
-If you are currently running [RabbitMQ for PCF](https://docs.pivotal.io/rabbitmq-cf/1-17/index.html), this [guide](rabbitmq-4-pcf.md) walks you through the steps on how to set it up with LDAP authentication so that you can try any of the scenarios we will cover the next sections. It also shows you how to deploy **OpenLDAP** in a separate VM and make it accessible from your RabbitMQ for PCF. 
+If you are currently running [RabbitMQ for PCF](https://docs.pivotal.io/rabbitmq-cf/1-17/index.html) you can still use this guide. We have written the first scenario called **Only Authentication** for OpenLDAP running [locally](only-authentication/README.md) and for OpenLDAP running [externally](only-authentication-4-pcf/REAME.md), in a separate VM in GCP. The two scenarios only differ on how to configure RabbitMQ for PCF because both share the same mechanisms to set up LDAP which are:
+  - Invoke script `start.sh` to deploy OpenLDAP
+  - and invoke script `import.sh` to import the users and ldap layout required by the scenario
+
+In a nutshell, to run any of the other scenarios in RabbitMQ for PCF, you need to do these 3 simple steps:
+  1. [Deploy OpenLDAP externally](only-authentication-4-pcf/README.md#Set-up-OpenLDAP)  
+    `cd only-authentication-4-pcf; ./start.sh`
+  2. Import the scenario's ldap configuration (users and objects),  
+    e.g. `cd authentication-and-tags; ./import.sh`
+  3. Make sure you have [enabled LDAP plugin in RabbitMQ for PCF](only-authentication-4-pcf/README.md#4-enable-ldap-plugin-in-rabbitmq-for-pcf)
+  4. Take the scenarios's ldap configuration, e.g. `authentication-and-tags/rabbitmq.config` and [configure RabbitMQ for PCF](only-authentication-4-pcf/README.md#5-configure-ldap-in-rabbitmq-for-pcf) with it.
+
 
 ## Implemented Integration scenarios
 
