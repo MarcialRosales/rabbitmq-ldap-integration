@@ -18,6 +18,7 @@ This guide assumes RabbitMQ is running locally (on port 5672 and 15672). It also
 - Python is installed. We will use it to run [rabbitmqadmin](https://www.rabbitmq.com/management-cli.html)
 - `rabbitadmin` is installed.  Go to [http://localhost:15672/cli/rabbitmqadmin](http://localhost:15672/cli/rabbitmqadmin]), copy the downloaded file to your preferred location in your `PATH`
 
+### Prerequisites to follow this guide when using RabbitMQ for PCF 
 If you are currently running [RabbitMQ for PCF](https://docs.pivotal.io/rabbitmq-cf/1-17/index.html) you can still use this guide. We have written the first scenario called **Only Authentication** for OpenLDAP running [locally](only-authentication/README.md) and for OpenLDAP running [externally](only-authentication-4-pcf/REAME.md), in a separate VM in GCP. The two scenarios only differ on how to configure RabbitMQ for PCF because both share the same mechanisms to set up LDAP which are:
   - Invoke script `start.sh` to deploy OpenLDAP
   - and invoke script `import.sh` to import the users and ldap layout required by the scenario
