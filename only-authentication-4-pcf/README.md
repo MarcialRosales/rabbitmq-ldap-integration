@@ -124,6 +124,8 @@ userPassword:: Y2hhbmdlbWU=
 
 ## 3. Create additional users in LDAP
 
+Please follow the exact same convention used in import.sh so that additional users are created with right DNs.
+
 Once we have LDAP running, we need to create users by adding users in new file `users.ldif` and then importing to `LDAP`. 
 
 create a file `users.ldif` and add users by following LDAP format to define the objects.
@@ -192,16 +194,16 @@ rabbit-auth.config
 
 [
     {rabbit, [
-        {auth_backends, [rabbit_auth_backend_ldap, rabbit_auth_backend_internal]}
+        {auth_backends, [rabbit_auth_backend_ldap]}
     ]},
     {rabbitmq_auth_backend_ldap, [
-        {servers,               ["<ldap-server-host>"]},
-        {user_dn_pattern,       "cn=${username},ou=People, dc=datatx,dc=pivotal,dc=io"},
+        {servers,         ["<ldap-server-host>"]},
+        {user_dn_pattern, "cn=${username},ou=People,dc=example,dc=com"},
         {tag_queries, [
-            {administrator,     {constant, false}},
-            {management,        {constant, true}}            
+            {administrator, {constant, false}},
+            {management,    {constant, true}}
         ]},
-        {log, network}
+        {log, network_unsafe}
     ]}
 ].
 
