@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+print() {
+  echo -e "${PADDING}$1"
+}
+
+wait_for_message() {
+  attemps_left=10
+  while ! docker logs $1 2>&1 | grep -q "$2";
+  do
+      sleep 5
+      print "Waiting 5sec for $1 to start ($attemps_left attempts left )..."
+      ((attemps_left--))
+      if [[ "$attemps_left" -lt 1 ]]; then
+        print "Timed out waiting"
+        exit 1
+      fi
+  done
+}
+
+docker rm -f openldap || echo "OpenLdap was not running"
+docker run --net rabbitmq_net --env LDAP_ORGANISATION="Authentication and Tags" --env LDAP_DOMAIN="example.com" --env LDAP_ADMIN_PASSWORD="admin" --detach -p 389:389 -p 636:636 --name openldap osixia/openldap:1.2.1
+wait_for_message openldap "slapd starting"

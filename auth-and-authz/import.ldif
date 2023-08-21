@@ -82,8 +82,8 @@ dn: ou=services,dc=example,dc=com
 objectClass: organizationalUnit
 ou: services
 
-dn: cn=admin-dev,ou=People,dc=example,dc=com
-cn: admin-dev
+dn: cn=admin-dev-ß,ou=People,dc=example,dc=com
+cn: admin-dev-ß
 objectClass: simpleSecurityObject
 objectClass: organizationalRole
 userPassword: {SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g=
@@ -116,15 +116,15 @@ dn: ou=env,dc=example,dc=com
 objectClass: organizationalUnit
 ou: env
 
-dn: ou=dev,ou=env,dc=example,dc=com
+dn: ou=dev-ß,ou=env,dc=example,dc=com
 objectClass: organizationalUnit
-ou: dev
+ou: dev-ß
 
 dn: ou=prod,ou=env,dc=example,dc=com
 objectClass: organizationalUnit
 ou: prod
 
-dn: cn=users,ou=dev,ou=env,dc=example,dc=com
+dn: cn=users,ou=dev-ß,ou=env,dc=example,dc=com
 objectClass: groupOfUniqueNames
 cn: users
 description: Users in dev environment
@@ -133,25 +133,25 @@ uniqueMember: cn=app100,ou=People,dc=example,dc=com
 uniqueMember: cn=app101,ou=People,dc=example,dc=com
 uniqueMember: cn=app102,ou=People,dc=example,dc=com
 
-dn: cn=administrator,ou=dev,ou=env,dc=example,dc=com
+dn: cn=administrator,ou=dev-ß,ou=env,dc=example,dc=com
 objectClass: groupOfUniqueNames
 cn: administrator
 description: Administrators (policymakers and can declare & remove any resource but cannot publish or consume messages)
-uniqueMember: cn=admin-dev,ou=People,dc=example,dc=com
+uniqueMember: cn=admin-dev-ß,ou=People,dc=example,dc=com
 
-dn: cn=app100-x-events-read,ou=dev,ou=env,dc=example,dc=com
+dn: cn=app100-x-events-read,ou=dev-ß,ou=env,dc=example,dc=com
 objectClass: groupOfUniqueNames
 cn: app100-x-events-read
 description: Read permission group for app100-x-events exchange in dev environment
 uniqueMember: cn=app101,ou=People,dc=example,dc=com
 
-dn: cn=app101-x-requests-read,ou=dev,ou=env,dc=example,dc=com
+dn: cn=app101-x-requests-read,ou=dev-ß,ou=env,dc=example,dc=com
 objectClass: groupOfUniqueNames
 cn: app101-x-requests-read
 description: Read permission group for app101-x-requests exchange in dev environment
 uniqueMember: cn=app102,ou=People,dc=example,dc=com
 
-dn: cn=app102-x-confirmations-read,ou=dev,ou=env,dc=example,dc=com
+dn: cn=app102-x-confirmations-read,ou=dev-ß,ou=env,dc=example,dc=com
 objectClass: groupOfUniqueNames
 cn: app102-x-confirmations-read
 description: Read permission group for app102-x-confirmations-read exchange in dev environment

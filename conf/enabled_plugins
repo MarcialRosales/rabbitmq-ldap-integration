@@ -1,0 +1,1 @@
+[rabbitmq_management,rabbitmq_auth_backend_ldap,rabbitmq_amqp1_0,rabbitmq_web_mqtt,rabbitmq_auth_backend_cache].

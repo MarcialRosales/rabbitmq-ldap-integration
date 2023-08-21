@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+echo "Launching $1 app with arguments: $@ "
+shift 1
+
+docker network inspect rabbitmq_net >/dev/null 2>&1 || docker network create rabbitmq_net
+docker rm -f $1 2>/dev/null || echo "$1 was not running"
+
+docker run -d --rm \
+  --network rabbitmq_net \
+  --name $1 \
+  pivotalrabbitmq/perf-test:latest \
+  --uri $url \
+  $@
