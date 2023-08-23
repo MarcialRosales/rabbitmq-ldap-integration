@@ -33,6 +33,8 @@ start-perftest-producer: ## Start PerfTest producer application
 		--rate 1 \
 		--flag persistent \
 		--exchange \"$(exchange)\" \
+		--type topic \
+		--routing-key \"$(routing-key)\" \
 		--auto-delete "false"
 
 stop-perftest-producer: ## Stop perfTest producer

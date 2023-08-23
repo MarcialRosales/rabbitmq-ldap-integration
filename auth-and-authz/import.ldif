@@ -22,7 +22,7 @@ userPassword: {SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g=
 
 dn: cn=bill,ou=People,dc=example,dc=com
 cn: bill
-sn: martin
+sn: martinx
 givenName: bill
 uid: bill
 uidNumber: 5001
@@ -90,18 +90,27 @@ userPassword: {SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g=
 
 dn: cn=app100,ou=People,dc=example,dc=com
 cn: app100
+postalCode: 28000-ß
+uid: app100
+uidNumber: 5010
+gidNumber: 10001
+homeDirectory: /home/app100
+objectClass: posixAccount
+objectClass: shadowAccount
 objectClass: simpleSecurityObject
 objectClass: organizationalRole
 userPassword: {SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g=
 
 dn: cn=app101,ou=People,dc=example,dc=com
 cn: app101
+postalCode: 28001
 objectClass: simpleSecurityObject
 objectClass: organizationalRole
 userPassword: {SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g=
 
 dn: cn=app102,ou=People,dc=example,dc=com
 cn: app102
+postalCode: 28002
 objectClass: simpleSecurityObject
 objectClass: organizationalRole
 userPassword: {SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g=
