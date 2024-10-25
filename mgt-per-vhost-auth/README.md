@@ -98,6 +98,11 @@ for this scenario.
 ].
 ```
 
+Notice that the above configuration is granting full access i.e. `read`, `write` and `configure` to any user. If you want management users like `user100` to only access the 
+management UI with view-only permission, you have to change the `resource_access_query`
+so that users which are in any `mgt_${vhost}` group, do not have any permission. 
+
+
 ### 4. Verify the scenario
 
 #### Verify Administrator access in the management ui 
