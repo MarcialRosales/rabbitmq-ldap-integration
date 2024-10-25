@@ -1,10 +1,13 @@
-# Configuration query that combines User Tags and Vhost access
+# Scenario that combines User Tags and Vhost access
 
-The scenario is the following. There could be hundreds of users accessing their clusters via the RabbitMQ management UI. Only users which belong to the ldap group `mgt_dev` have access to only vhost `dev`. Likewise, users which belong to the group `mgt_prod` have access to only the vhost `prod`. 
-However, administrator users have full access to all vhosts in the management UI. 
+Users which belong to the ldap group `mgt_dev`, such as `user100`,  have access to only the vhost `dev`. 
+Likewise, users which belong to the group `mgt_prod`, such as `user200`, have access to only the vhost `prod`. 
+However, administrator users, such as `superuser`, have full access to all vhosts in the management UI. 
 
 The LDAP and RabbitMQ configuration files are located in the folder `mgt-per-vhost-auth`. 
 
+Proceed with the following sections to deploy ldap and RabbitMQ and get further 
+information about their setup.
 
 ## 1. Launch OpenLDAP
 
@@ -22,10 +25,10 @@ make import-ldap FILE=mgt-per-vhost-auth/import.ldif
 
 It declares the following entries:
 * Groups: 
-    - `msg_dev` this group has all the applications who have access to the `dev` vhost 
-    - `mgt_dev` this group has all the users who have access to the `dev` vhost via the management UI
+    - `msg_dev` this group is intended to group users which access the `dev` vhost for messaging purposes
+    - `mgt_dev` this group is intended to group users which access the `dev` vhost via the management UI
     - Likewise for `msg_prod` and `mgt_prod`
-    - `management` this group has all users with the user-tag `management`. User-tags are not bound to any vhost. A user-tag only grants that user access to the management UI with a role. To limit the access to any vhost is done thru the `vhost_access_query`. In other words, for user `user100` to be be able to access vhost `dev` in the management UI, it must have the `management` user-tag and must have access to the vhost `dev`. 
+    - `management` this group is intended to group users which have the user-tag `management`. User-tags are not bound to any vhost. In fact, a user without any access to any vhost but with the user-tag `management` can still access the management UI, but that user cannot see any vhost.You grant vhost access via the `vhost_access_query` configuration variable. In other words, for user `user100` to be be able to access vhost `dev` in the management UI, it must have the `management` user-tag and must have access to the vhost `dev`. 
     - `administrator` this group has all users with the user-tag `administrator`
 
 * Users:
@@ -56,7 +59,7 @@ cn=app100,..    cn=app200      cn=user100,...
 
 ```
 
-### 3. Deploy RabbitMQ 
+## 3. Deploy RabbitMQ 
 
 To deploy RabbitMQ, run the following command:
 ```bash
@@ -64,11 +67,9 @@ MODE=mgt-per-vhost-auth make start-rabbitmq
 ```
 
 It deploys RabbitMQ with these two configuration files:
-- [mgt-per-vhost-auth/rabbitmq.conf](mgt-per-vhost-auth/rabbitmq.conf) which configures 
-ldap as the main authentication backend and a definitions file with two vhosts required
+- [mgt-per-vhost-auth/rabbitmq.conf](blob/vhost-permissions/mgt-per-vhost-auth/rabbitmq.conf) which configures ldap as the main authentication backend and a definitions file with two vhosts required
 for this scenario.
-- [mgt-per-vhost-auth/advanced.config](mgt-per-vhost-auth/advanced.config) which configures
-the ldap plugin.
+- [mgt-per-vhost-auth/advanced.config](blob/vhost-permissions/mgt-per-vhost-auth/advanced.config) which configures the ldap plugin.
 
 
 ```
@@ -97,8 +98,9 @@ the ldap plugin.
 ].
 ```
 
+### 4. Verify the scenario
 
-### 4. Verify Administrator access in the management ui 
+#### Verify Administrator access in the management ui 
 
 1. Open http://localhost:15672 
 2. Enter the credentials `superuser`:`password`
@@ -106,21 +108,21 @@ the ldap plugin.
 all vhosts and to the majority of options in the Admin tab
 
 
-### 5. Verify Management access to the dev vhost only in the management ui 
+#### Verify Management access to the dev vhost only in the management ui 
 
 1. Open http://localhost:15672 
 2. Enter the credentials `user100`:`password`
 3. You are accessing the management UI with limitted access (`management` only) 
 and only have access to the `dev` vhost
 
-### 6. Verify Management access to the prod vhost only in the management ui 
+#### Verify Management access to the prod vhost only in the management ui 
 
 1. Open http://localhost:15672 
 2. Enter the credentials `user200`:`password`
 3. You are accessing the management UI with limitted access (`management` only) 
 and only have access to the `prod` vhost
 
-### 7. Verify access over to AMQP protocol
+#### Verify access over to AMQP protocol
 
 Run the following command:
 ```bash
