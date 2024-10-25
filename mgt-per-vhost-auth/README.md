@@ -9,6 +9,13 @@ The LDAP and RabbitMQ configuration files are located in the folder `mgt-per-vho
 Proceed with the following sections to deploy ldap and RabbitMQ and get further 
 information about their setup.
 
+## 0. Prerequisites
+
+This scenario has been prepared to be run in a unix-like environment and with 
+docker installed. 
+Also, copy the file `.ldaprc` found in the root of this repository to your `$HOME` folder. 
+This is necessary when importing the ldap definitions to ldap.
+
 ## 1. Launch OpenLDAP
 
 To launch Openldap, run the following command from the root of this repository:
