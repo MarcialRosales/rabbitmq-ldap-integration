@@ -90,13 +90,13 @@ dn: cn=msg_prod,ou=groups,dc=example,dc=com
 objectClass: groupOfUniqueNames
 cn: msg_prod
 description: Messaging users of vhost dev
-uniqueMember: cn=app100,ou=People,dc=example,dc=com
+uniqueMember: cn=app200,ou=People,dc=example,dc=com
 
 dn: cn=mgt_prod,ou=groups,dc=example,dc=com
 objectClass: groupOfUniqueNames
 cn: mgt_prod
 description: Messaging users of vhost dev
-uniqueMember: cn=user100,ou=People,dc=example,dc=com
+uniqueMember: cn=user200,ou=People,dc=example,dc=com
 uniqueMember: cn=superuser,ou=People,dc=example,dc=com
 
 dn: ou=env,dc=example,dc=com

@@ -1,40 +1,48 @@
 # Configuration query that combines User Tags and Vhost access
 
-Hundreds of users access their clusters via the RabbitMQ management UI. Is there a way to limit acess for e.g. AD Group "mgmt_vhosta" to just vhost "a" and not the whole cluster? 
+The scenario is the following. There could be hundreds of users accessing their clusters via the RabbitMQ management UI. Only users which belong to the ldap group `mgt_dev` have access to only vhost `dev`. Likewise, users which belong to the group `mgt_prod` have access to only the vhost `prod`. 
+However, administrator users have full access to all vhosts in the management UI. 
 
-These are our requirements for this scenario:
-
-- In our `dc=example, dc=com` organization we have 3 vhosts: **dev** and **prod**. Each environment matches one RabbitMQ vhost.
-- There are two ldap groups per vhost. For instance, 
-    * users in `msg_dev` can access the vhost `dev` via one of the messaging protocols
-    * users in `mgt_dev` can access the vhost `dev` via the management UI 
+The LDAP and RabbitMQ configuration files are located in the folder `mgt-per-vhost-auth`. 
 
 ## 1. Launch OpenLDAP
 
-From within `mgt-per-vhost-auth` folder, run `start.sh` script to launch **OpenLDAP**. It will kill the container we ran on the previous scenario and it will start a new one. This is so that we start with a clean LDAP database.
+To launch Openldap, run the following command from the root of this repository:
+```bash
+make start-ldap 
+```
 
 ## 2. Set up LDAP entries
 
+Run the following command to import all the ldap definitions used by this scenario:
+```bash
+make import-ldap FILE=mgt-per-vhost-auth/import.ldif
+```
+
+It declares the following entries:
 * Groups: 
-    - `msg_dev` and `mgt_dev`
-    - `msg_prod` and `mgt_prod`
+    - `msg_dev` this group has all the applications who have access to the `dev` vhost 
+    - `mgt_dev` this group has all the users who have access to the `dev` vhost via the management UI
+    - Likewise for `msg_prod` and `mgt_prod`
+    - `management` this group has all users with the user-tag `management`. User-tags are not bound to any vhost. A user-tag only grants that user access to the management UI with a role. To limit the access to any vhost is done thru the `vhost_access_query`. In other words, for user `user100` to be be able to access vhost `dev` in the management UI, it must have the `management` user-tag and must have access to the vhost `dev`. 
+    - `administrator` this group has all users with the user-tag `administrator`
 * Users:
     - `app100` and `user100` for `dev` vhost
     - `app200` and `user200` for `prod` vhost
-
+ 
 ```
           dc=example, dc=com
                   |
           +-------+---------+----------------------------------------+
           |                 |                                        |
-   cn=admin,            ou=env,                                   ou=People
+   cn=admin,             ou=groups,                                ou=People
     dc=example,          dc=example,                               dc=example,
     dc=com               dc=com                                    dc=com
                             |                                        |
   +--------------+---------+-+                              +-------+--------------+
   |              |           |                              |                      |
 ou=msg_dev     ou=msg_prod  ou=mgt_dev                      cn=app100      cn=user100,   
- ou=env,       ou=env,      ou=env,                         ou=People,     ou=People, 
+ ou=groups,    ou=groups,   ou=groups,                      ou=People,     ou=People, 
  dc=example,   dc=example,  dc=example,                     dc=example,    dc=example
  dc=com        dc=com       dc=com                       
   ||              ||             ||                         
@@ -44,31 +52,25 @@ cn=app100,..    cn=app200      cn=user100,...
 
 ```
 
+### 3. Deploy RabbitMQ 
 
-Run the following command to create this structure:   
-
-```
-./mgt-per-vhost-auth/import.sh
-```
-
-Run the following command to create the vhosts:  
-
-```
-./mgt-per-vhost-auth/create-vhosts.sh
+To deploy RabbitMQ, run the following command:
+```bash
+MODE=mgt-per-vhost-auth make start-rabbitmq
 ```
 
+It deploys RabbitMQ with these two configuration files:
+- [mgt-per-vhost-auth/rabbitmq.conf](mgt-per-vhost-auth/rabbitmq.conf) which configures 
+ldap as the main authentication backend and a definitions file with two vhosts required
+for this scenario.
+- [mgt-per-vhost-auth/advanced.config](mgt-per-vhost-auth/advanced.config) which configures
+the ldap plugin.
 
-### 3. Configure RabbitMQ 
-
-Edit your `rabbimq.config`, add the following configuration and restart RabbitMQ:
 
 ```
 [
-    {rabbit, [
-        {auth_backends, [rabbit_auth_backend_ldap]}
-    ]},
     {rabbitmq_auth_backend_ldap, [
-        {servers,            ["localhost"]},
+        {servers,            ["ldap"]},
         {user_dn_pattern,    "cn=${username},ou=People,dc=example,dc=com"},
         {other_bind,         {"cn=admin,dc=example,dc=com", "admin"}},
         {tag_queries, [
@@ -76,40 +78,49 @@ Edit your `rabbimq.config`, add the following configuration and restart RabbitMQ
             {management,     {in_group, "cn=management,ou=groups,dc=example,dc=com", "uniqueMember"}}
         ]},
         {vhost_access_query, {'or', [
-                {in_group, "cn=mgt_${vhost},ou=env,dc=example,dc=com", "uniqueMember"},
-                {in_group, "cn=msg_${vhost},ou=env,dc=example,dc=com", "uniqueMember"}
+                {in_group, "cn=mgt_${vhost},ou=groups,dc=example,dc=com", "uniqueMember"},
+                {in_group, "cn=msg_${vhost},ou=groups,dc=example,dc=com", "uniqueMember"}
             ]} 
         }, 
+        {resource_access_query,
+            {for, [{permission, write, {constant, true}},
+                   {permission, read,  {constant, true}},
+                   {permission, configure,  {constant, true}}
+            ]
+        }},        
         {log, network}
     ]}
 ].
 ```
 
-This same configuration is available in the file [rabbitmq.config](rabbitmq.config) should you want to copy files.
 
-**Configuration explained**:
+### 4. Verify Administrator access in the management ui 
+
+1. Open http://localhost:15672 
+2. Enter the credentials `superuser`:`password`
+3. You are accessing the management UI as administrator and have access to 
+all vhosts and to the majority of options in the Admin tab
 
 
+### 5. Verify Management access to the dev vhost only in the management ui 
 
-### 4. Verify Configuration
+1. Open http://localhost:15672 
+2. Enter the credentials `user100`:`password`
+3. You are accessing the management UI with limitted access (`management` only) 
+and only have access to the `dev` vhost
 
-1. Make sure that `app100` can access via AMQP to the vhost `dev`
-    ```
-    ruby app100.rb dev
-    ```
-2. Make sure that `app100` **cannot** access via AMQP to the vhost `prod`
-    ```
-    ruby app100.rb prod
-    ```
-3. Make sure that `app200` can access via AMQP to the vhost `prod`
-    ```
-    ruby app200.rb prod
-    ```
-4. Make sure that `app100` cannot access the management plugin
-    ```
-    curl -u app100:password http://localhost:15672/api/overview`
-    ```
-    Shall produce:
-    ```
-    {"error":"not_authorised","reason":"Not management user"}
-    ```
+### 6. Verify Management access to the prod vhost only in the management ui 
+
+1. Open http://localhost:15672 
+2. Enter the credentials `user200`:`password`
+3. You are accessing the management UI with limitted access (`management` only) 
+and only have access to the `prod` vhost
+
+### 7. Verify access over to AMQP protocol
+
+Run the following command:
+```bash
+make start-perftest-producer USERNAME=app100 PWD=password VHOST=dev
+```
+`app100` is the credentials used by an application grants access to the `dev` vhost. 
+

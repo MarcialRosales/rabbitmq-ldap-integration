@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+USER=${1:?First parameter must be username}
+PWD=${2:?Second parameter must be password}
+VHOST=${3:?Second parameter must be vhost}
+
+url="amqp://$USER:$PWD@rabbitmq:5672/$VHOST"
+
+shift 3
+
+echo "Launching $USER app with arguments: $@ "
+echo " and url: $url"
+
+docker network inspect rabbitmq_net >/dev/null 2>&1 || docker network create rabbitmq_net
+docker rm -f $USER 2>/dev/null || echo "$USER was not running"
+
+docker run -d --rm \
+  --network rabbitmq_net \
+  --name $USER \
+  pivotalrabbitmq/perf-test:latest \
+  --uri $url \
+  $@

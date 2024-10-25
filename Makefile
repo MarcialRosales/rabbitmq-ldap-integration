@@ -24,7 +24,7 @@ stop-rabbitmq: ## Stop RabbitMQ Server
 	@docker stop rabbitmq
 
 start-perftest-producer: ## Start PerfTest producer application
-	@./bin/run-perftest $(PRODUCER) $(PRODUCER_PWD) $(VHOST) \
+	@./bin/run-perftest $(USERNAME) $(PWD) $(VHOST) \
 		--queue "q-perf-test" \
 		--producers 1 \
 		--consumers 0 \
@@ -34,10 +34,10 @@ start-perftest-producer: ## Start PerfTest producer application
 		--auto-delete "false"
 
 stop-perftest-producer: ## Stop perfTest producer
-	@docker stop $(PRODUCER)
+	@docker stop $(USERNAME)
 
 start-perftest-consumer: ## Start Perftest consumer application
-	@./bin/run-perftest $(CONSUMER) $(CONSUMER_PWD) $(VHOST) \
+	@./bin/run-perftest $(USERNAME) $(PWD) $(VHOST) \
 		--queue "q-perf-test" \
 		--producers 0 \
 		--consumers 1 \
@@ -47,5 +47,5 @@ start-perftest-consumer: ## Start Perftest consumer application
 		--auto-delete "false"
 
 stop-perftest-consumer: ## Stop perfTest consumer
-	@docker stop $(CONSUMER)
+	@docker stop $(USERNAME)
 
