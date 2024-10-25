@@ -25,9 +25,9 @@ make import-ldap FILE=mgt-per-vhost-auth/import.ldif
 
 It declares the following entries:
 * Groups: 
-    - `msg_dev` this group is intended to group users which access the `dev` vhost for messaging purposes
-    - `mgt_dev` this group is intended to group users which access the `dev` vhost via the management UI
-    - Likewise for `msg_prod` and `mgt_prod`
+    - `msg_dev` this group is intended to group users which access the `dev` vhost for messaging purposes, like `app100`.
+    - `mgt_dev` this group is intended to group users which access the `dev` vhost via the management UI, like `user100`.
+    - Likewise for `msg_prod` and `mgt_prod`.
     - `management` this group is intended to group users which have the user-tag `management`. User-tags are not bound to any vhost. In fact, a user without any access to any vhost but with the user-tag `management` can still access the management UI, but that user cannot see any vhost.You grant vhost access via the `vhost_access_query` configuration variable. In other words, for user `user100` to be be able to access vhost `dev` in the management UI, it must have the `management` user-tag and must have access to the vhost `dev`. 
     - `administrator` this group has all users with the user-tag `administrator`
 
