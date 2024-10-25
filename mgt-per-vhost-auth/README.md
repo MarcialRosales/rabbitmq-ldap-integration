@@ -5,6 +5,7 @@ However, administrator users have full access to all vhosts in the management UI
 
 The LDAP and RabbitMQ configuration files are located in the folder `mgt-per-vhost-auth`. 
 
+
 ## 1. Launch OpenLDAP
 
 To launch Openldap, run the following command from the root of this repository:
@@ -26,10 +27,13 @@ It declares the following entries:
     - Likewise for `msg_prod` and `mgt_prod`
     - `management` this group has all users with the user-tag `management`. User-tags are not bound to any vhost. A user-tag only grants that user access to the management UI with a role. To limit the access to any vhost is done thru the `vhost_access_query`. In other words, for user `user100` to be be able to access vhost `dev` in the management UI, it must have the `management` user-tag and must have access to the vhost `dev`. 
     - `administrator` this group has all users with the user-tag `administrator`
+
 * Users:
     - `app100` and `user100` for `dev` vhost
     - `app200` and `user200` for `prod` vhost
  
+This diagram does not represent all the entries you just imported only a few ones to 
+help visualize the overall structure.  
 ```
           dc=example, dc=com
                   |
