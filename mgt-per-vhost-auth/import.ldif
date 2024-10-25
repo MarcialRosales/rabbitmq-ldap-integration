@@ -1,0 +1,115 @@
+dn: ou=People,dc=example,dc=com
+objectClass: organizationalUnit
+ou: People
+
+dn: cn=superuser,ou=People,dc=example,dc=com
+cn: superuser
+sn: superuser
+givenName: superuser
+uid: superuser
+uidNumber: 5001
+gidNumber: 10000
+homeDirectory: /home/superuser
+mail: superuser@example.com
+objectClass: top
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+loginShell: /bin/bash
+userPassword: {SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g=
+
+
+dn: cn=app100,ou=People,dc=example,dc=com
+cn: app100
+objectClass: simpleSecurityObject
+objectClass: organizationalRole
+userPassword: {SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g=
+
+dn: cn=user100,ou=People,dc=example,dc=com
+cn: user100
+sn: user100
+givenName: user100
+uid: user100
+uidNumber: 5001
+gidNumber: 10000
+homeDirectory: /home/user100
+mail: user100@example.com
+objectClass: top
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+loginShell: /bin/bash
+userPassword: {SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g=
+
+dn: cn=app200,ou=People,dc=example,dc=com
+cn: app200
+objectClass: simpleSecurityObject
+objectClass: organizationalRole
+userPassword: {SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g=
+
+dn: cn=user200,ou=People,dc=example,dc=com
+cn: user200
+sn: user200
+givenName: user200
+uid: user200
+uidNumber: 5002
+gidNumber: 10000
+homeDirectory: /home/user200
+mail: user200@example.com
+objectClass: top
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+loginShell: /bin/bash
+userPassword: {SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g=
+
+dn: ou=groups,dc=example,dc=com
+objectClass: organizationalUnit
+ou: groups
+
+dn: cn=msg_dev,ou=groups,dc=example,dc=com
+objectClass: groupOfUniqueNames
+cn: msg_dev
+description: Messaging users of vhost dev
+uniqueMember: cn=app100,ou=People,dc=example,dc=com
+
+dn: cn=mgt_dev,ou=groups,dc=example,dc=com
+objectClass: groupOfUniqueNames
+cn: mgt_dev
+description: Messaging users of vhost dev
+uniqueMember: cn=user100,ou=People,dc=example,dc=com
+
+dn: cn=msg_prod,ou=groups,dc=example,dc=com
+objectClass: groupOfUniqueNames
+cn: msg_prod
+description: Messaging users of vhost dev
+uniqueMember: cn=app100,ou=People,dc=example,dc=com
+
+dn: cn=mgt_prod,ou=groups,dc=example,dc=com
+objectClass: groupOfUniqueNames
+cn: mgt_prod
+description: Messaging users of vhost dev
+uniqueMember: cn=user100,ou=People,dc=example,dc=com
+
+dn: ou=env,dc=example,dc=com
+objectClass: organizationalUnit
+ou: env
+
+dn: cn=management,ou=env,dc=example,dc=com
+objectClass: groupOfUniqueNames
+cn: management
+description: Management users of vhost dev
+uniqueMember: cn=user100,ou=People,dc=example,dc=com
+uniqueMember: cn=user200,ou=People,dc=example,dc=com
+
+dn: cn=administrator,ou=groups,dc=example,dc=com
+objectClass: groupOfUniqueNames
+cn: administrator
+description: Administrator users
+uniqueMember: cn=superuser,ou=People,dc=example,dc=com
