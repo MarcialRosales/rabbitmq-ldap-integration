@@ -84,6 +84,7 @@ objectClass: groupOfUniqueNames
 cn: mgt_dev
 description: Messaging users of vhost dev
 uniqueMember: cn=user100,ou=People,dc=example,dc=com
+uniqueMember: cn=superuser,ou=People,dc=example,dc=com
 
 dn: cn=msg_prod,ou=groups,dc=example,dc=com
 objectClass: groupOfUniqueNames
@@ -96,12 +97,13 @@ objectClass: groupOfUniqueNames
 cn: mgt_prod
 description: Messaging users of vhost dev
 uniqueMember: cn=user100,ou=People,dc=example,dc=com
+uniqueMember: cn=superuser,ou=People,dc=example,dc=com
 
 dn: ou=env,dc=example,dc=com
 objectClass: organizationalUnit
 ou: env
 
-dn: cn=management,ou=env,dc=example,dc=com
+dn: cn=management,ou=groups,dc=example,dc=com
 objectClass: groupOfUniqueNames
 cn: management
 description: Management users of vhost dev

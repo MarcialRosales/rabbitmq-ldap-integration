@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-docker rm -f openldap || echo "OpenLdap was not running"
+docker rm -f ldap || echo "ldap was not running"
 docker run --detach \
  --net rabbitmq_net \
  --env LDAP_ORGANISATION="Authentication and Tags" \
@@ -8,5 +8,5 @@ docker run --detach \
  --env LDAP_ADMIN_PASSWORD="admin" \
  -p 389:389 \
  -p 636:636 \
- --name openldap \
+ --name ldap \
  osixia/openldap:1.2.1

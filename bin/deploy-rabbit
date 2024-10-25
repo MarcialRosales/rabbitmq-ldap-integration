@@ -6,11 +6,11 @@ SCRIPT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source $SCRIPT/common
 
-MODE=${MODE:?"MODE env varialbe not declared"}
+MODE=${MODE:?"MODE env variable not declared"}
 OAUTH_PROVIDER=${OAUTH_PROVIDER:-$MODE}
 ADVANCED=${ADVANCED:-advanced.config}
-IMAGE_TAG=${IMAGE_TAG:-main}
-IMAGE=${IMAGE:-pivotalrabbitmq/rabbitmq}
+IMAGE_TAG=${IMAGE_TAG:-4.0.2-management}
+IMAGE=${IMAGE:-rabbitmq}
 RABBITMQ_CONF=${RABBITMQ_CONF:-rabbitmq.conf}
 
 CONF_DIR=$SCRIPT/../${MODE}
@@ -46,7 +46,10 @@ function deploy {
   if [[ -f "${CONF_DIR}/requires-tls" ]]; then 
     EXTRA_PORTS="-p 15671:15671 "  
   fi 
-
+  if [[ -d "${CONF_DIR}/definitions" ]]; then 
+    EXTRA_MOUNTS="${EXTRA_MOUNTS} -v ${CONF_DIR}/definitions:/definitions " 
+  fi 
+  
   if [[ -n "${ADVANCED}"  && -f "${CONF_DIR}/${ADVANCED}"  ]]; then
     EXTRA_MOUNTS="${EXTRA_MOUNTS} -v ${CONF_DIR}/${ADVANCED}:/etc/rabbitmq/advanced.config:ro "
     USED_CONFIG="${USED_CONFIG} ${CONF_DIR}/${ADVANCED}"
