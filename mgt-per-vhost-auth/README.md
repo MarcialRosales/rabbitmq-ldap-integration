@@ -74,9 +74,9 @@ MODE=mgt-per-vhost-auth make start-rabbitmq
 ```
 
 It deploys RabbitMQ with these two configuration files:
-- [mgt-per-vhost-auth/rabbitmq.conf](blob/vhost-permissions/mgt-per-vhost-auth/rabbitmq.conf) which configures ldap as the main authentication backend and a definitions file with two vhosts required
+- [mgt-per-vhost-auth/rabbitmq.conf](https://github.com/MarcialRosales/rabbitmq-ldap-integration/blob/vhost-permissions/mgt-per-vhost-auth/rabbitmq.conf) which configures ldap as the main authentication backend and a definitions file with two vhosts required
 for this scenario.
-- [mgt-per-vhost-auth/advanced.config](blob/vhost-permissions/mgt-per-vhost-auth/advanced.config) which configures the ldap plugin.
+- [mgt-per-vhost-auth/advanced.config](https://github.com/MarcialRosales/rabbitmq-ldap-integration/blob/vhost-permissions/mgt-per-vhost-auth/advanced.config) which configures the ldap plugin.
 
 
 ```
