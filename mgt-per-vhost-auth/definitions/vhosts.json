@@ -1,0 +1,6 @@
+{
+    "vhosts": [
+        {"name":"dev","tags":[]},
+        {"name":"prod","tags":[]}
+    ]
+}
